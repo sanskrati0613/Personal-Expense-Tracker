@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Expense Tracker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Good Morning, Sanskrati!</h1>
+        <div class="header-controls">
+            <div class="dropdown">
+                Daily <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="date-picker">
+                <i class="fas fa-calendar"></i>
+                16 January 2026
+            </div>
+
+            <div class="export-btn">
+                <i class="fas fa-download"></i>
+                Export
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Monthly Income</h3>
+                    <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
+                <div class="amount income-amount">₹ 20,000.00</div>
+                <div class="change">
+                    <i class="fas fa-arrow-up"></i>
+                    12% vs Last month
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Monthly Expenses</h3>
+                    <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
+                <div class="amount expense-amount">₹ 8,000.00</div>
+                <div class="change">
+                    <i class="fas fa-arrow-up"></i>
+                    12% vs Last month
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
