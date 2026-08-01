@@ -50,6 +50,303 @@
                     12% vs Last month
                 </div>
             </div>
+
+            <div class="card my-card">
+                <div class="card-header">
+                    <h3 class="card-title">My Card</h3>
+                    <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
+                <div class="wallet">Linked to your primary wallet</div>
+
+                <div class="card-chip"></div>
+                <div class="card-number">5435 7685 6785 6478</div>
+                <div class="card-holder">Sanskrati</div>
+
+                <div class="card-logo">
+                    <div class="card-logo-circle logo-red"></div>
+                    <div class="card-logo-circle logo-orange"></div>
+                </div>
+
+                <div class="spending-section">
+                    <div class="spending-limit-text">Spending Limit</div>
+                    <div class="spending-limit">₹ 5,000.00</div>
+                    <div class="spending-used">used from ₹ 24,000.00</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chart-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Overview</h3>
+                    <div class="yearly-container">
+                        <div class="dropdown">Yearly <i class="fas fa-chevron-down"></i></div>
+                        <button class="filter-btn">
+                            <i class="fas fa-filter"></i>
+                            Filter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-bar chart-bar1"></div>
+                    <div class="chart-bar chart-bar2"></div>
+                    <div class="chart-bar active" style="height: 200px;">
+                        <div class="monthly-expense">
+                            <div style="font-weight: 600;">April 2026</div>
+                            <div style="color: #10b981;">Income: ₹ 30,000</div>
+                            <div style="color: #ea580c;">Expenses: ₹ 3,000</div>
+                        </div>
+                        <div class="chart-bar-income"></div>
+                        <div class="chart-bar-expense"></div>
+                    </div>
+
+                    <div class="chart-bar" style="height: 150px;"></div>
+                    <div class="chart-bar" style="height: 90px;"></div>
+                    <div class="chart-bar" style="height: 110px;"></div>
+                    <div class="chart-bar" style="height: 130px;"></div>
+                    <div class="chart-bar" style="height: 100px;"></div>
+                    <div class="chart-bar" style="height: 80px;"></div>
+                    <div class="chart-bar" style="height: 140px;"></div>
+                    <div class="chart-bar" style="height: 95px;"></div>
+
+                </div>
+
+                <div class="chart-labels">
+                    <span>Jan</span>
+                    <span>Feb</span>
+                    <span>Mar</span>
+                    <span>Apr</span>
+                    <span>May</span>
+                    <span>Jun</span>
+                    <span>July</span>
+                    <span>Aug</span>
+                    <span>Sep</span>
+                    <span>Oct</span>
+                    <span>Nov</span>
+                    <span>Dec</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">All Expenses</div>
+                    <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>               
+                </div>
+
+                <div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 1rem;">Spending breakdown by category</div>
+
+                <div class="expenses-breakdown">
+                    <div class="total-expenses">₹ 24,000.00</div>
+
+                    <div class="period-tabs">
+                        <span class="period-tab">Daily</span>
+                        <span class="period-tab">Weekly</span>
+                        <span class="period-tab active">Monthly</span>
+                    </div>
+
+                    <div class="period-amounts">
+                        <span>Daily</span>
+                        <span>Weekly</span>
+                        <span>Monthly</span>
+                    </div>
+
+                    <div class="period-values">
+                        <span>₹ 2,000</span>
+                        <span>₹ 8,000</span>
+                        <span>₹ 24,000</span>
+                    </div>
+
+                    <div class="color-bar"></div>
+
+                    <div class="expense-categories">
+                        <ul class="expense-categories">
+                            <li class="expense-category">
+                                <div class="category-info">
+                                    <div class="category-dot dot-food"></div>
+                                    <span>Food & Health</span>
+                                </div>
+                                <span>₹ 863</span>
+                            </li>
+
+                            <li class="expense-category">
+                                <div class="category-info">
+                                    <div class="category-dot dot-entertainment"></div>
+                                    <span>Entertainments</span>
+                                </div>
+                                <span>₹ 248</span>
+                            </li>
+
+                            <li class="expense-category">
+                                <div class="category-info">
+                                    <div class="category-dot dot-shopping"></div>
+                                    <span>Shopping</span>
+                                </div>
+                                <span>₹ 1863</span>
+                            </li>
+
+                            <li class="expense-category">
+                                <div class="category-info">
+                                    <div class="category-dot dot-investments"></div>
+                                    <span>Investments</span>
+                                </div>
+                                <span>₹ 1835</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>  
+        </div>
+        
+
+        <div class="card transaction-sections">
+            <div class="card-header">
+                <h3 class="card-title">Recent Transactions</h3>
+                <div class="filters">
+                    <button class="filter-btn">
+                        <i class="fas fa-sort"></i>
+                        Short
+                    </button>
+                    <button class="filter-btn">
+                        <i class="fas fa-filter"></i>
+                        Filter
+                    </button>    
+                </div>
+            </div>
+
+            <table class="transaction-table">
+                <thead>
+                    <tr>
+                        <th>Date<i class="fas fa-sort"></i></th>
+                        <th>Category<i class="fas fa-sort"></i></th>
+                        <th>Amount<i class="fas fa-sort"></i></th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Jan 14, 2025</td>
+                        <td>Subscription</td>
+                        <td>₹ 440.00</td>
+                        <td><span class="status-success">Success</span></td>
+                        <td><button class="action-btn"><i class="fas fa-ellipsis-h"></i></button></td>
+                    </tr>
+
+                    <tr>
+                        <td>Jan 10, 2025</td>
+                        <td>Transfer</td>
+                        <td>₹ 440.00</td>
+                        <td><span class="status-success">Success</span></td>
+                        <td><button class="action-btn"><i class="fas fa-ellipsis-h"></i></button></td>
+                    </tr>
+
+                    <tr>
+                        <td>Jan 8, 2025</td>
+                        <td>Transfer</td>
+                        <td>₹ 440.00</td>
+                        <td><span class="status-success">Success</span></td>
+                        <td><button class="action-btn"><i class="fas fa-ellipsis-h"></i></button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Income and Expense Buttons -->
+
+    <div class="add-buttons">
+        <button class="fab fab-income" onclick="openIncomeModal()" title="Add Income"><i class="fas fa-plus"></i></button>
+        <button class="fab fab-expense" onclick="openExpenseModal()" title="Add Expense"><i class="fas fa-minus"></i></button>
+    </div>
+
+    <!-- Income Modal -->
+    <div id="incomeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Income</h2>
+                <button class="close-btn" onclick="closeModal('incomeModal')">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <form id="incomeForm" autocomplete="off">
+                    <div class="form-group">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-input" id="incomeAmount" placeholder="Enter amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" id="incomeCategory" required>
+                            <option value="">Select category</option>
+                            <option value="salary">Salary</option>
+                            <option value="freelance">Freelance</option>
+                            <option value="business">Business</option>
+                            <option value="investment">Investment</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-input" id="incomeDescription" placeholder="Enter description">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" id="incomeDate" required>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('incomeModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addIncome()">Add Income</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Modal -->
+    <div id="expenseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Expense</h2>
+                <button class="close-btn" onclick="closeModal('expenseModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="expenseForm">
+                    <div class="form-group">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-input" id="expenseAmount" placeholder="Enter amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" id="expenseCategory" required>
+                            <option value="">Select category</option>
+                            <option value="food">Food & Health</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="investment">Investment</option>
+                            <option value="transport">Transport</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-input" id="expenseDescription" placeholder="Enter description">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" id="expenseDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('expenseModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addExpense()">Add Expense</button>
+            </div>
         </div>
     </div>
 
