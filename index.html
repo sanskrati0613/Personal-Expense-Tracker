@@ -51,6 +51,32 @@
                 </div>
             </div>
 
+            <div class="card">
+
+                <div class="card-header">
+                    <h3 class="card-title">Current Balance</h3>
+                </div>
+
+                <div class="amount" id="currentBalance">
+                    ₹0
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <div class="card-header">
+                    <h3 class="card-title">
+                        Total Transactions
+                    </h3>
+                </div>
+
+                <div class="amount" id="totalTransactions">
+                    0
+                </div>
+
+            </div>
+
             <div class="card my-card">
                 <div class="card-header">
                     <h3 class="card-title">My Card</h3>
@@ -70,7 +96,7 @@
                 <div class="spending-section">
                     <div class="spending-limit-text">Spending Limit</div>
                     <div class="spending-limit">₹ 5,000.00</div>
-                    <div class="spending-used">used from ₹ 24,000.00</div>
+                    <div class="spending-used" id="spendingUsed">used from ₹0</div>
                     <div class="progress-bar">
                         <div class="progress-fill"></div>
                     </div>
@@ -140,7 +166,7 @@
                 <div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 1rem;">Spending breakdown by category</div>
 
                 <div class="expenses-breakdown">
-                    <div class="total-expenses">₹ 24,000.00</div>
+                    <div class="total-expenses" id="totalExpenses">₹0</div>
 
                     <div class="period-tabs">
                         <span class="period-tab">Daily</span>
@@ -162,62 +188,39 @@
 
                     <div class="color-bar"></div>
 
-                    <div class="expense-categories">
-                        <ul class="expense-categories">
-                            <li class="expense-category">
-                                <div class="category-info">
-                                    <div class="category-dot dot-food"></div>
-                                    <span>Food & Health</span>
-                                </div>
-                                <span>₹ 863</span>
-                            </li>
-
-                            <li class="expense-category">
-                                <div class="category-info">
-                                    <div class="category-dot dot-entertainment"></div>
-                                    <span>Entertainments</span>
-                                </div>
-                                <span>₹ 248</span>
-                            </li>
-
-                            <li class="expense-category">
-                                <div class="category-info">
-                                    <div class="category-dot dot-shopping"></div>
-                                    <span>Shopping</span>
-                                </div>
-                                <span>₹ 1863</span>
-                            </li>
-
-                            <li class="expense-category">
-                                <div class="category-info">
-                                    <div class="category-dot dot-investments"></div>
-                                    <span>Investments</span>
-                                </div>
-                                <span>₹ 1835</span>
-                            </li>
-                        </ul>
-                    </div>
+                    <ul class="expense-categories" id="expenseCategories"></ul>
                 </div>
             </div>  
         </div>
         
 
-        <div class="card transaction-sections">
+        <div class="card transactions-section">
             <div class="card-header">
                 <h3 class="card-title">Recent Transactions</h3>
                 <div class="filters">
-                    <button class="filter-btn">
-                        <i class="fas fa-sort"></i>
-                        Short
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search transactions...">
+
+                    <select id="typeFilter" class="filter-btn">
+                        <option value="all">All</option>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+
+                    <select id="sortTransactions" class="filter-btn">
+                        <option value="latest">Latest</option>
+                        <option value="oldest">Oldest</option>
+                        <option value="highest">Highest Amount</option>
+                        <option value="lowest">Lowest Amount</option>
+                    </select>    
+
+                    <button id="clearFilters" class="filter-btn">
+                        <i class="fas fa-times"></i>
+                        Reset Filters
                     </button>
-                    <button class="filter-btn">
-                        <i class="fas fa-filter"></i>
-                        Filter
-                    </button>    
                 </div>
             </div>
 
-            <table class="transaction-table">
+            <table class="transactions-table">
                 <thead>
                     <tr>
                         <th>Date<i class="fas fa-sort"></i></th>
@@ -229,29 +232,7 @@
                 </thead>
 
                 <tbody>
-                    <tr>
-                        <td>Jan 14, 2025</td>
-                        <td>Subscription</td>
-                        <td>₹ 440.00</td>
-                        <td><span class="status-success">Success</span></td>
-                        <td><button class="action-btn"><i class="fas fa-ellipsis-h"></i></button></td>
-                    </tr>
 
-                    <tr>
-                        <td>Jan 10, 2025</td>
-                        <td>Transfer</td>
-                        <td>₹ 440.00</td>
-                        <td><span class="status-success">Success</span></td>
-                        <td><button class="action-btn"><i class="fas fa-ellipsis-h"></i></button></td>
-                    </tr>
-
-                    <tr>
-                        <td>Jan 8, 2025</td>
-                        <td>Transfer</td>
-                        <td>₹ 440.00</td>
-                        <td><span class="status-success">Success</span></td>
-                        <td><button class="action-btn"><i class="fas fa-ellipsis-h"></i></button></td>
-                    </tr>
                 </tbody>
             </table>
         </div>

@@ -26,8 +26,30 @@ let transactions = [
   },
 ];
 
-let monthlyIncome = 2645;
-let monthlyExpenses = 1895;
+
+let editingTransactionId = null;
+
+let searchTerm = "";
+let currentFilter = "all";
+let currentSort = "latest";
+
+// ====================
+// Local Storage
+// ====================
+
+function saveData() {
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+}
+
+function loadData() {
+
+    const savedTransactions = localStorage.getItem("transactions");
+
+    if(savedTransactions){
+        transactions = JSON.parse(savedTransactions);
+    }
+
+}
 
 // Set today's date as default
 const today = new Date().toISOString().split("T")[0];
@@ -79,6 +101,32 @@ function addIncome() {
   const description = document.getElementById("incomeDescription").value;
   const date = document.getElementById("incomeDate").value;
 
+  if(editingTransactionId){
+
+    const oldTransaction=transactions.find(
+        t=>t.id===editingTransactionId
+    );
+
+    oldTransaction.amount=amount;
+    oldTransaction.category =
+    category.charAt(0).toUpperCase() + category.slice(1);
+    oldTransaction.description=description;
+    oldTransaction.date=date;
+
+
+    editingTransactionId=null;
+
+    updateDashboard();
+    updateTransactionsTable();
+    saveData();
+
+    closeModal("incomeModal");
+
+    showNotification("Transaction updated!");
+
+    return;
+  }
+
   if (!amount || !category || !date) {
     alert("Please fill in all required fields");
     return;
@@ -86,7 +134,7 @@ function addIncome() {
 
   // Add to transactions
   const newTransaction = {
-    id: transactions.length + 1,
+    id: Date.now(),
     date: date,
     category: category.charAt(0).toUpperCase() + category.slice(1),
     amount: amount,
@@ -98,9 +146,9 @@ function addIncome() {
   transactions.unshift(newTransaction);
 
   // Update monthly income
-  monthlyIncome += amount;
   updateDashboard();
   updateTransactionsTable();
+  saveData();
 
   closeModal("incomeModal");
 
@@ -115,6 +163,32 @@ function addExpense() {
   const description = document.getElementById("expenseDescription").value;
   const date = document.getElementById("expenseDate").value;
 
+  if(editingTransactionId){
+
+    const oldTransaction=transactions.find(
+        t=>t.id===editingTransactionId
+    );
+
+
+    oldTransaction.amount=-amount;
+    oldTransaction.category =
+    category.charAt(0).toUpperCase() + category.slice(1);
+    oldTransaction.description=description;
+    oldTransaction.date=date;
+
+    editingTransactionId=null;
+
+    updateDashboard();
+    updateTransactionsTable();
+    saveData();
+
+    closeModal("expenseModal");
+
+    showNotification("Transaction updated!");
+
+    return;
+  }
+
   if (!amount || !category || !date) {
     alert("Please fill in all required fields");
     return;
@@ -122,7 +196,7 @@ function addExpense() {
 
   // Add to transactions
   const newTransaction = {
-    id: transactions.length + 1,
+    id: Date.now(),
     date: date,
     category: category.charAt(0).toUpperCase() + category.slice(1),
     amount: -amount,
@@ -134,9 +208,9 @@ function addExpense() {
   transactions.unshift(newTransaction);
 
   // Update monthly expenses
-  monthlyExpenses += amount;
   updateDashboard();
   updateTransactionsTable();
+  saveData();
 
   closeModal("expenseModal");
 
@@ -144,27 +218,174 @@ function addExpense() {
   showNotification("Expense added successfully!", "success");
 }
 
+document.getElementById("searchInput")
+.addEventListener("input", function(){
+
+    searchTerm = this.value.toLowerCase();
+
+    updateTransactionsTable();
+
+});
+
+document.getElementById("typeFilter")
+.addEventListener("change", function () {
+
+    currentFilter = this.value;
+
+    updateTransactionsTable();
+
+});
+
+document.getElementById("sortTransactions")
+.addEventListener("change", function () {
+
+    currentSort = this.value;
+
+    updateTransactionsTable();
+
+});
+
+document.getElementById("clearFilters").addEventListener("click", function () {
+
+    searchTerm = "";
+    currentFilter = "all";
+    currentSort = "latest";
+
+    document.getElementById("searchInput").value = "";
+    document.getElementById("typeFilter").value = "all";
+    document.getElementById("sortTransactions").value = "latest";
+
+    updateTransactionsTable();
+
+    showNotification("Filters cleared!");
+});
+
+function calculateTotals() {
+
+    let income = 0;
+    let expense = 0;
+
+    transactions.forEach(transaction => {
+
+        if(transaction.type === "income"){
+
+            income += transaction.amount;
+
+        }else{
+
+            expense += Math.abs(transaction.amount);
+
+        }
+
+    });
+
+    return {
+
+        income,
+        expense,
+        balance: income - expense,
+        totalTransactions: transactions.length
+
+    };
+
+}
+
+function updateExpenseBreakdown(){
+
+    const container =
+        document.getElementById("expenseCategories");
+
+    container.innerHTML = "";
+
+    const categories = {};
+
+    transactions.forEach(transaction=>{
+
+        if(transaction.type==="expense"){
+
+            if(!categories[transaction.category]){
+
+                categories[transaction.category]=0;
+
+            }
+
+            categories[transaction.category]+=Math.abs(transaction.amount);
+
+        }
+
+    });
+
+    Object.entries(categories).forEach(([category,amount])=>{
+
+        container.innerHTML += `
+
+<li class="expense-category">
+
+<div class="category-info">
+
+<span>${category}</span>
+
+</div>
+
+<span>₹${amount.toLocaleString()}</span>
+
+</li>
+
+`;
+
+    });
+
+}
+
 // Update dashboard values
 function updateDashboard() {
-  document.querySelector(
-    ".income-amount"
-  ).textContent = `${monthlyIncome.toLocaleString()}.00`;
-  document.querySelector(
-    ".expense-amount"
-  ).textContent = `${monthlyExpenses.toLocaleString()}.00`;
+
+  const totals = calculateTotals();
+
+  const transactionElement =
+    document.getElementById("totalTransactions");
+
+if (transactionElement) {
+
+    transactionElement.textContent =
+        totals.totalTransactions;
+
+}
+
+  document.querySelector(".income-amount").textContent =
+    `₹${totals.income.toLocaleString()}.00`;
+  document.querySelector(".expense-amount").textContent =
+    `₹${totals.expense.toLocaleString()}.00`;
+
+  const balanceElement = document.getElementById("currentBalance");
+
+if (balanceElement) {
+    balanceElement.textContent = `₹${totals.balance.toLocaleString()}`;
+}
 
   // Update spending limit progress
-  const spendingLimit = 12645;
-  const usedAmount = monthlyExpenses;
-  const percentage = (usedAmount / spendingLimit) * 100;
+let monthlyBudget = 15000;
 
-  document.querySelector(".spending-limit").textContent = `${(
-    spendingLimit - usedAmount
-  ).toLocaleString()}.00`;
-  document.querySelector(".progress-fill").style.width = `${Math.min(
-    percentage,
-    100
-  )}%`;
+const usedAmount = totals.expense;
+
+const remainingAmount = monthlyBudget - usedAmount;
+
+document.getElementById("spendingUsed").textContent =
+`Used ₹${totals.expense.toLocaleString()} of ₹${monthlyBudget.toLocaleString()}`;
+
+const percentage =
+(usedAmount / monthlyBudget) * 100;
+
+document.querySelector(".spending-limit").textContent =
+  `₹${remainingAmount.toLocaleString()}.00`;
+
+document.querySelector(".progress-fill").style.width =
+  `${Math.min(percentage, 100)}%`;
+
+document.getElementById("totalExpenses").textContent =
+`₹${totals.expense.toLocaleString()}.00`;
+
+  updateExpenseBreakdown();
 }
 
 // Update transactions table
@@ -172,8 +393,85 @@ function updateTransactionsTable() {
   const tbody = document.querySelector(".transactions-table tbody");
   tbody.innerHTML = "";
 
-  // Show only recent transactions (last 10)
-  const recentTransactions = transactions.slice(0, 10);
+let filteredTransactions = [...transactions];
+
+if(searchTerm){
+
+    filteredTransactions = filteredTransactions.filter(transaction=>{
+
+        return (
+
+            transaction.category.toLowerCase().includes(searchTerm)
+
+            ||
+
+            (transaction.description || "")
+            .toLowerCase()
+            .includes(searchTerm)
+
+            ||
+
+            Math.abs(transaction.amount)
+            .toString()
+            .includes(searchTerm)
+
+        );
+
+    });
+
+}
+
+if (currentFilter !== "all") {
+
+    filteredTransactions = filteredTransactions.filter(transaction => {
+
+        return transaction.type === currentFilter;
+
+    });
+
+}
+
+switch (currentSort) {
+
+    case "latest":
+        filteredTransactions.sort(
+            (a, b) => new Date(b.date) - new Date(a.date)
+        );
+        break;
+
+    case "oldest":
+        filteredTransactions.sort(
+            (a, b) => new Date(a.date) - new Date(b.date)
+        );
+        break;
+
+    case "highest":
+        filteredTransactions.sort(
+            (a, b) => Math.abs(b.amount) - Math.abs(a.amount)
+        );
+        break;
+
+    case "lowest":
+        filteredTransactions.sort(
+            (a, b) => Math.abs(a.amount) - Math.abs(b.amount)
+        );
+        break;
+}
+
+const recentTransactions = filteredTransactions.slice(0,10);
+
+if (recentTransactions.length === 0) {
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="5" style="text-align:center; padding:30px;">
+                No transactions found.
+            </td>
+        </tr>
+    `;
+
+    return;
+}
 
   recentTransactions.forEach((transaction) => {
     const row = document.createElement("tr");
@@ -183,7 +481,7 @@ function updateTransactionsTable() {
         month: "short",
         day: "numeric",
         year: "numeric",
-      }
+      },
     );
 
     const amountDisplay =
@@ -194,18 +492,89 @@ function updateTransactionsTable() {
     row.innerHTML = `
                     <td>${formattedDate}</td>
                     <td>${transaction.category}</td>
-                    <td style="color: ${
-                      transaction.amount > 0 ? "#10b981" : "#ef4444"
-                    }">${amountDisplay}</td>
-                    <td><span class="status-success">${
-                      transaction.status
-                    }</span></td>
-                    <td><button class="action-btn"><i class="fas fa-ellipsis-h"></i></button></td>
+                    <td style="color: ${transaction.amount > 0 ? "#10b981" : "#ef4444"
+      }">${amountDisplay}</td>
+                    <td><span class="status-success">${transaction.status
+      }</span></td>
+                    <td>
+    <button class="edit-btn"
+        onclick="editTransaction(${transaction.id})">
+        <i class="fas fa-pen"></i>
+    </button>
+
+    <button class="delete-btn"
+        onclick="deleteTransaction(${transaction.id})">
+        <i class="fas fa-trash"></i>
+    </button>
+</td>
                 `;
 
     tbody.appendChild(row);
   });
 }
+
+function deleteTransaction(id) {
+
+  const confirmDelete = confirm("Are you sure you want to delete this transaction?");
+
+  if (!confirmDelete) return;
+
+  const transaction = transactions.find(t => t.id === id);
+
+  if (!transaction) return;
+
+  transactions = transactions.filter(t => t.id !== id);
+
+  updateDashboard();
+  updateTransactionsTable();
+  saveData();
+
+  showNotification("Transaction deleted successfully!");
+}
+
+function editTransaction(id){
+
+    const transaction = transactions.find(t=>t.id===id);
+
+    if(!transaction) return;
+
+    editingTransactionId=id;
+
+    if(transaction.type==="income"){
+
+        document.getElementById("incomeAmount").value=transaction.amount;
+
+        document.getElementById("incomeCategory").value=
+            transaction.category.toLowerCase();
+
+        document.getElementById("incomeDescription").value=
+            transaction.description || "";
+
+        document.getElementById("incomeDate").value=
+            transaction.date;
+
+        openIncomeModal();
+
+    }else{
+
+        document.getElementById("expenseAmount").value=
+            Math.abs(transaction.amount);
+
+        document.getElementById("expenseCategory").value=
+            transaction.category.toLowerCase();
+
+        document.getElementById("expenseDescription").value=
+            transaction.description || "";
+
+        document.getElementById("expenseDate").value=
+            transaction.date;
+
+        openExpenseModal();
+
+    }
+
+}
+
 
 // Show notification
 function showNotification(message, type = "success") {
@@ -282,5 +651,7 @@ document.querySelectorAll(".card").forEach((card) => {
 
 // Initialize the dashboard on load
 document.addEventListener("DOMContentLoaded", function () {
+  loadData();
+  updateDashboard();
   updateTransactionsTable();
 });

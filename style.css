@@ -399,7 +399,7 @@ body{
   background: #10b981;
 }
 
-.transactions-sections{
+.transactions-section{
   grid-column: 1 / -1;
   margin-top: 2rem;
 }
@@ -416,6 +416,18 @@ body{
   gap: 1rem;
 }
 
+.search-input{
+    padding:10px 14px;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+    width:250px;
+    outline:none;
+}
+
+.search-input:focus{
+    border-color:#3b82f6;
+}
+
 .filter-btn{
   background: white;
   border: 1px solid #d1d5db;
@@ -428,14 +440,14 @@ body{
   gap: 0.5rem;
 }
 
-.transaction-table{
+.transactions-table{
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
   margin-top: 1rem;
 }
 
-.transaction-table th{
+.transactions-table th{
   text-align: left;
   padding: 1rem;
   font-size: 0.875rem;
@@ -444,9 +456,36 @@ body{
   border-bottom: 1px solid #e5e7eb;
 }
 
-.transaction-table td{
+.transactions-table td{
   padding: 1rem;
   border-bottom: 1px solid #f3f4f6;
+}
+
+.delete-btn{
+    background:none;
+    border:none;
+    color:#ef4444;
+    cursor:pointer;
+    font-size:1rem;
+    transition:0.2s;
+}
+
+.delete-btn:hover{
+    color:#dc2626;
+    transform:scale(1.1);
+}
+
+.edit-btn{
+    background:none;
+    border:none;
+    color:#2563eb;
+    cursor:pointer;
+    margin-right:10px;
+    font-size:1rem;
+}
+
+.edit-btn:hover{
+    color:#1d4ed8;
 }
 
 /* .transactions-table th,
@@ -646,4 +685,31 @@ body{
   .main-content {
     padding: 1rem;
   }
+}
+
+@media (max-width: 992px){
+
+    .section-header{
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .filters{
+        width:100%;
+        display:flex;
+        flex-wrap:wrap;
+        gap:0.75rem;
+    }
+
+    .search-input{
+        flex:1;
+        min-width:220px;
+    }
+
+    .filter-btn{
+        flex:1;
+        min-width:140px;
+    }
+
 }
