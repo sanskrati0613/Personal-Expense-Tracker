@@ -30,7 +30,7 @@
         <div class="dashboard-grid">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Monthly Income</h3>
+                    <h3 class="card-title"><i class="fas fa-wallet"></i> Monthly Income</h3>
                     <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
                 </div>
                 <div class="amount income-amount">₹ 20,000.00</div>
@@ -41,7 +41,7 @@
             </div>
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Monthly Expenses</h3>
+                    <h3 class="card-title"><i class="fas fa-money-bill-wave"></i> Monthly Expenses</h3>
                     <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
                 </div>
                 <div class="amount expense-amount">₹ 8,000.00</div>
@@ -54,11 +54,15 @@
             <div class="card">
 
                 <div class="card-header">
-                    <h3 class="card-title">Current Balance</h3>
+                    <h3 class="card-title"><i class="fas fa-chart-line"></i> Current Balance</h3>
                 </div>
 
                 <div class="amount" id="currentBalance">
                     ₹0
+                </div>
+
+                <div class="change" id="balanceStatus">
+                    Updated automatically
                 </div>
 
             </div>
@@ -67,13 +71,17 @@
 
                 <div class="card-header">
                     <h3 class="card-title">
-                        Total Transactions
+                        <i class="fas fa-receipt"></i> Total Transactions
                     </h3>
                 </div>
 
                 <div class="amount" id="totalTransactions">
                     0
                 </div>
+
+                <p id="transactionSummary">
+                    0 Income • 0 Expense
+                </p>
 
             </div>
 
@@ -93,8 +101,30 @@
                     <div class="card-logo-circle logo-orange"></div>
                 </div>
 
+                
+
                 <div class="spending-section">
-                    <div class="spending-limit-text">Spending Limit</div>
+                    <div class="budget-header">
+
+                        <span>
+                            Monthly Budget
+                        </span>
+
+                        <button id="editBudgetBtn" class="btn-secondary">
+                            <i class="fas fa-pen"></i>
+                            Edit
+
+                        </button>
+
+                    </div>
+
+                    <div class="budget-value" id="budgetAmount">
+
+                    ₹15,000.00
+
+                    </div>
+                    
+                    <div class="spending-limit-text">Remaining Budget</div>
                     <div class="spending-limit">₹ 5,000.00</div>
                     <div class="spending-used" id="spendingUsed">used from ₹0</div>
                     <div class="progress-bar">
@@ -118,42 +148,9 @@
                 </div>
 
                 <div class="chart-container">
-                    <div class="chart-bar chart-bar1"></div>
-                    <div class="chart-bar chart-bar2"></div>
-                    <div class="chart-bar active" style="height: 200px;">
-                        <div class="monthly-expense">
-                            <div style="font-weight: 600;">April 2026</div>
-                            <div style="color: #10b981;">Income: ₹ 30,000</div>
-                            <div style="color: #ea580c;">Expenses: ₹ 3,000</div>
-                        </div>
-                        <div class="chart-bar-income"></div>
-                        <div class="chart-bar-expense"></div>
-                    </div>
 
-                    <div class="chart-bar" style="height: 150px;"></div>
-                    <div class="chart-bar" style="height: 90px;"></div>
-                    <div class="chart-bar" style="height: 110px;"></div>
-                    <div class="chart-bar" style="height: 130px;"></div>
-                    <div class="chart-bar" style="height: 100px;"></div>
-                    <div class="chart-bar" style="height: 80px;"></div>
-                    <div class="chart-bar" style="height: 140px;"></div>
-                    <div class="chart-bar" style="height: 95px;"></div>
+                    <canvas id="overviewChart"></canvas>
 
-                </div>
-
-                <div class="chart-labels">
-                    <span>Jan</span>
-                    <span>Feb</span>
-                    <span>Mar</span>
-                    <span>Apr</span>
-                    <span>May</span>
-                    <span>Jun</span>
-                    <span>July</span>
-                    <span>Aug</span>
-                    <span>Sep</span>
-                    <span>Oct</span>
-                    <span>Nov</span>
-                    <span>Dec</span>
                 </div>
             </div>
 
@@ -186,7 +183,9 @@
                         <span>₹ 24,000</span>
                     </div>
 
-                    <div class="color-bar"></div>
+                    <div class="pie-chart-container">
+                        <canvas id="expensePieChart"></canvas>
+                    </div>
 
                     <ul class="expense-categories" id="expenseCategories"></ul>
                 </div>
@@ -331,6 +330,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

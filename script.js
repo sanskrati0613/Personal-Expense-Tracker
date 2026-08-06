@@ -32,13 +32,27 @@ let editingTransactionId = null;
 let searchTerm = "";
 let currentFilter = "all";
 let currentSort = "latest";
+let overviewChart = null;
+let expensePieChart = null;
+
+let monthlyBudget = 15000;
 
 // ====================
 // Local Storage
 // ====================
 
 function saveData() {
-    localStorage.setItem("transactions", JSON.stringify(transactions));
+
+    localStorage.setItem(
+        "transactions",
+        JSON.stringify(transactions)
+    );
+
+    localStorage.setItem(
+        "monthlyBudget",
+        monthlyBudget
+    );
+
 }
 
 function loadData() {
@@ -48,6 +62,15 @@ function loadData() {
     if(savedTransactions){
         transactions = JSON.parse(savedTransactions);
     }
+
+    const savedBudget =
+    localStorage.getItem("monthlyBudget");
+
+    if(savedBudget){
+
+      monthlyBudget = Number(savedBudget);
+
+}
 
 }
 
@@ -318,20 +341,157 @@ function updateExpenseBreakdown(){
     Object.entries(categories).forEach(([category,amount])=>{
 
         container.innerHTML += `
-
 <li class="expense-category">
 
-<div class="category-info">
+    <div class="category-info">
 
-<span>${category}</span>
+        <span>${category}</span>
 
-</div>
+    </div>
 
-<span>₹${amount.toLocaleString()}</span>
+    <strong>₹${amount.toLocaleString()}</strong>
 
 </li>
-
 `;
+
+    });
+
+}
+
+function updateCharts(){
+
+    const ctx =
+        document.getElementById("overviewChart");
+
+    if(!ctx) return;
+
+    const totals = calculateTotals();
+
+    if(overviewChart){
+
+        overviewChart.destroy();
+
+    }
+
+    overviewChart = new Chart(ctx,{
+
+        type:"bar",
+
+        data:{
+
+            labels:["Income","Expense"],
+
+            datasets:[{
+
+                label:"Amount",
+
+                data:[
+                    totals.income,
+                    totals.expense
+                ],
+
+                backgroundColor:[
+                    "#10b981",
+                    "#ef4444"
+                ],
+
+                borderRadius:8
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            plugins:{
+
+                legend:{
+                    display:false
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
+function updateExpensePieChart(){
+
+    const canvas = document.getElementById("expensePieChart");
+
+    if(!canvas) return;
+
+    const categories = {};
+
+    transactions.forEach(transaction=>{
+
+        if(transaction.type==="expense"){
+
+            if(!categories[transaction.category]){
+                categories[transaction.category]=0;
+            }
+
+            categories[transaction.category]+=Math.abs(transaction.amount);
+
+        }
+
+    });
+
+    const labels = Object.keys(categories);
+    const values = Object.values(categories);
+
+    if(expensePieChart){
+        expensePieChart.destroy();
+    }
+
+    expensePieChart = new Chart(canvas,{
+
+        type:"pie",
+
+        data:{
+
+            labels,
+
+            datasets:[{
+
+                data:values,
+
+                backgroundColor:[
+                    "#10b981",
+                    "#3b82f6",
+                    "#f59e0b",
+                    "#ef4444",
+                    "#8b5cf6",
+                    "#06b6d4",
+                    "#ec4899",
+                    "#84cc16"
+                ]
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            plugins:{
+
+                legend:{
+                    position:"bottom"
+                }
+
+            }
+
+        }
 
     });
 
@@ -341,6 +501,9 @@ function updateExpenseBreakdown(){
 function updateDashboard() {
 
   const totals = calculateTotals();
+
+  document.getElementById("budgetAmount").textContent =
+`₹${monthlyBudget.toLocaleString()}.00`;
 
   const transactionElement =
     document.getElementById("totalTransactions");
@@ -357,14 +520,46 @@ if (transactionElement) {
   document.querySelector(".expense-amount").textContent =
     `₹${totals.expense.toLocaleString()}.00`;
 
-  const balanceElement = document.getElementById("currentBalance");
+const balanceElement =
+    document.getElementById("currentBalance");
 
-if (balanceElement) {
-    balanceElement.textContent = `₹${totals.balance.toLocaleString()}`;
+balanceElement.textContent =
+    `${totals.balance < 0 ? "-₹" : "₹"}${Math.abs(totals.balance).toLocaleString()}`;
+
+balanceElement.style.color =
+    totals.balance < 0
+        ? "#ef4444"
+        : "#10b981";
+
+const balanceStatus = document.getElementById("balanceStatus");
+
+if (totals.balance >= 0) {
+
+    balanceStatus.innerHTML =
+        `<i class="fas fa-check-circle"></i> You're within your budget`;
+
+    balanceStatus.style.color = "#10b981";
+
+} else {
+
+    balanceStatus.innerHTML =
+        `<i class="fas fa-exclamation-circle"></i> Expenses exceed income`;
+
+    balanceStatus.style.color = "#ef4444";
+
 }
 
+const incomeCount =
+    transactions.filter(t => t.type === "income").length;
+
+const expenseCount =
+    transactions.filter(t => t.type === "expense").length;
+
+document.getElementById("transactionSummary").textContent =
+    `${incomeCount} Income • ${expenseCount} Expense`;
+
+
   // Update spending limit progress
-let monthlyBudget = 15000;
 
 const usedAmount = totals.expense;
 
@@ -374,7 +569,9 @@ document.getElementById("spendingUsed").textContent =
 `Used ₹${totals.expense.toLocaleString()} of ₹${monthlyBudget.toLocaleString()}`;
 
 const percentage =
-(usedAmount / monthlyBudget) * 100;
+monthlyBudget > 0
+? (usedAmount / monthlyBudget) * 100
+: 0;
 
 document.querySelector(".spending-limit").textContent =
   `₹${remainingAmount.toLocaleString()}.00`;
@@ -386,6 +583,10 @@ document.getElementById("totalExpenses").textContent =
 `₹${totals.expense.toLocaleString()}.00`;
 
   updateExpenseBreakdown();
+
+  updateCharts();
+
+  updateExpensePieChart();
 }
 
 // Update transactions table
