@@ -715,6 +715,122 @@ body {
   color: #374151;
 }
 
+#dashboardPeriod {
+    appearance: auto;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    color: #1e293b;
+    min-width: 95px;
+}
+
+.accounts-card {
+    min-height: 280px;
+}
+
+.add-account-btn {
+    border: none;
+    background: transparent;
+    color: #2563eb;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.accounts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.account-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-radius: 12px;
+    background: #f8fafc;
+}
+
+.account-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.account-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #ffffff;
+    font-size: 20px;
+}
+
+.account-name {
+    font-weight: 600;
+}
+
+.account-type {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 3px;
+}
+
+.account-right {
+    text-align: right;
+}
+
+.account-balance {
+    font-weight: 700;
+}
+
+.account-balance.negative {
+    color: #dc2626;
+}
+
+.account-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 5px;
+}
+
+.account-actions button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 3px;
+}
+
+.account-actions button:hover {
+    color: #2563eb;
+}
+
+.fab-transfer {
+    background: #6366f1;
+}
+
+.fab-transfer:hover {
+    transform: translateY(-2px);
+}
+
+#accountFilter {
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: #374151;
+    cursor: pointer;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -765,6 +881,17 @@ body {
 
 }
 
+}
+
+/* Budget Modal */
+
+#budgetModal .modal-content {
+    max-width: 450px;
+}
+
+#budgetInput {
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
 @media (max-width: 992px) {

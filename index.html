@@ -9,17 +9,27 @@
 </head>
 <body>
     <div class="header">
-        <h1>Good Morning, Sanskrati!</h1>
+        <h1 id="greeting">
+    Good Morning, Sanskrati!
+</h1>
         <div class="header-controls">
-            <div class="dropdown">
-                Daily <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="date-picker">
-                <i class="fas fa-calendar"></i>
-                16 January 2026
-            </div>
+            <select id="headerDashboardPeriod" class="dropdown">
+    <option value="daily">Daily</option>
+    <option value="weekly">Weekly</option>
+    <option value="monthly" selected>Monthly</option>
+    <option value="yearly">Yearly</option>
+</select>
+            <div class="date-picker" id="currentDate">
+    <i class="fas fa-calendar"></i>
+    <span>16 January 2026</span>
+</div>
+<input
+    type="date"
+    id="datePickerInput"
+    style="display: none;"
+>
 
-            <div class="export-btn">
+            <div class="export-btn" id="exportBtn">
                 <i class="fas fa-download"></i>
                 Export
             </div>
@@ -30,7 +40,10 @@
         <div class="dashboard-grid">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-wallet"></i> Monthly Income</h3>
+                    <h3 class="card-title">
+    <i class="fas fa-wallet"></i>
+    <span id="incomeCardTitle">Monthly Income</span>
+</h3>
                     <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
                 </div>
                 <div class="amount income-amount">₹ 20,000.00</div>
@@ -41,7 +54,10 @@
             </div>
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-money-bill-wave"></i> Monthly Expenses</h3>
+                    <h3 class="card-title">
+    <i class="fas fa-money-bill-wave"></i>
+    <span id="expenseCardTitle">Monthly Expenses</span>
+                    </h3>
                     <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
                 </div>
                 <div class="amount expense-amount">₹ 8,000.00</div>
@@ -84,6 +100,31 @@
                 </p>
 
             </div>
+
+            <div class="card accounts-card">
+
+    <div class="card-header">
+
+        <h3 class="card-title">
+            <i class="fas fa-wallet"></i>
+            My Accounts
+        </h3>
+
+        <button
+            class="add-account-btn"
+            onclick="openAccountModal()">
+            <i class="fas fa-plus"></i>
+            Add
+        </button>
+
+    </div>
+
+    <div
+        id="accountsList"
+        class="accounts-list">
+    </div>
+
+</div>
 
             <div class="card my-card">
                 <div class="card-header">
@@ -139,11 +180,20 @@
                 <div class="card-header">
                     <h3 class="card-title">Overview</h3>
                     <div class="yearly-container">
-                        <div class="dropdown">Yearly <i class="fas fa-chevron-down"></i></div>
-                        <button class="filter-btn">
-                            <i class="fas fa-filter"></i>
-                            Filter
-                        </button>
+                        <select id="dashboardPeriod" class="dropdown">
+    <option value="daily">Daily</option>
+    <option value="weekly">Weekly</option>
+    <option value="monthly">Monthly</option>
+    <option value="yearly" selected>Yearly</option>
+</select>
+                        <button
+    class="filter-btn"
+    id="overviewFilterBtn">
+
+    <i class="fas fa-filter"></i>
+    Filter
+
+</button>
                     </div>
                 </div>
 
@@ -166,9 +216,17 @@
                     <div class="total-expenses" id="totalExpenses">₹0</div>
 
                     <div class="period-tabs">
-                        <span class="period-tab">Daily</span>
-                        <span class="period-tab">Weekly</span>
-                        <span class="period-tab active">Monthly</span>
+                        <span class="period-tab" data-expense-period="daily">
+    Daily
+</span>
+
+<span class="period-tab" data-expense-period="weekly">
+    Weekly
+</span>
+
+<span class="period-tab active" data-expense-period="monthly">
+    Monthly
+</span>
                     </div>
 
                     <div class="period-amounts">
@@ -199,6 +257,16 @@
                 <div class="filters">
                     <input type="text" id="searchInput" class="search-input" placeholder="Search transactions...">
 
+                    <select
+    id="accountFilter"
+    class="filter-btn">
+
+    <option value="all">
+        All Accounts
+    </option>
+
+</select>
+
                     <select id="typeFilter" class="filter-btn">
                         <option value="all">All</option>
                         <option value="income">Income</option>
@@ -225,6 +293,7 @@
                         <th>Date<i class="fas fa-sort"></i></th>
                         <th>Category<i class="fas fa-sort"></i></th>
                         <th>Amount<i class="fas fa-sort"></i></th>
+                        <th>Amount<i class="fas fa-sort"></i></th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -240,6 +309,11 @@
     <!-- Income and Expense Buttons -->
 
     <div class="add-buttons">
+        <button class="fab fab-transfer" id="addTransferBtn" title="Add Transfer">
+        
+            <i class="fas fa-exchange-alt"></i>
+        
+        </button>
         <button class="fab fab-income" onclick="openIncomeModal()" title="Add Income"><i class="fas fa-plus"></i></button>
         <button class="fab fab-expense" onclick="openExpenseModal()" title="Add Expense"><i class="fas fa-minus"></i></button>
     </div>
@@ -269,6 +343,19 @@
                             <option value="other">Other</option>
                         </select>
                     </div>
+                    <div class="form-group">
+
+    <label class="form-label">
+        Account
+    </label>
+
+    <select
+        class="form-select"
+        id="incomeAccount"
+        required>
+    </select>
+
+</div>
                     <div class="form-group">
                         <label class="form-label">Description</label>
                         <input type="text" class="form-input" id="incomeDescription" placeholder="Enter description">
@@ -314,6 +401,19 @@
                         </select>
                     </div>
                     <div class="form-group">
+
+    <label class="form-label">
+        Account
+    </label>
+
+    <select
+        class="form-select"
+        id="expenseAccount"
+        required>
+    </select>
+
+</div>
+                    <div class="form-group">
                         <label class="form-label">Description</label>
                         <input type="text" class="form-input" id="expenseDescription" placeholder="Enter description">
                     </div>
@@ -329,6 +429,410 @@
             </div>
         </div>
     </div>
+
+    <!-- Budget Modal -->
+    <div id="budgetModal" class="modal">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h2 class="modal-title">
+                    Edit Monthly Budget
+                </h2>
+
+                <button
+                    class="close-btn"
+                    onclick="closeModal('budgetModal')">
+                    &times;
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <form id="budgetForm">
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Monthly Budget
+                        </label>
+
+                        <input
+                            type="number"
+                            class="form-input"
+                            id="budgetInput"
+                            placeholder="Enter your budget"
+                            min="0"
+                            step="1"
+                            required
+                        >
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-secondary"
+                    onclick="closeModal('budgetModal')">
+                    Cancel
+                </button>
+
+                <button
+                    class="btn btn-primary"
+                    onclick="saveBudget()">
+                    Save Budget
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Account Modal -->
+
+<div id="accountModal" class="modal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2
+                class="modal-title"
+                id="accountModalTitle">
+                Add Account
+            </h2>
+
+            <button
+                class="close-btn"
+                onclick="closeModal('accountModal')">
+                &times;
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <form id="accountForm">
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Account Name
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-input"
+                        id="accountName"
+                        placeholder="e.g. HDFC Bank"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Account Type
+                    </label>
+
+                    <select
+                        class="form-select"
+                        id="accountType"
+                        required>
+
+                        <option value="">
+                            Select account type
+                        </option>
+
+                        <option value="cash">
+                            Cash
+                        </option>
+
+                        <option value="bank">
+                            Bank Account
+                        </option>
+
+                        <option value="upi">
+                            UPI
+                        </option>
+
+                        <option value="credit">
+                            Credit Card
+                        </option>
+
+                        <option value="wallet">
+                            Digital Wallet
+                        </option>
+
+                        <option value="other">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                class="btn btn-secondary"
+                onclick="closeModal('accountModal')">
+                Cancel
+            </button>
+
+            <button
+                class="btn btn-primary"
+                onclick="saveAccount()">
+                Save Account
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Transfer Modal -->
+
+<div id="transferModal" class="modal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2 class="modal-title">
+                Transfer Money
+            </h2>
+
+            <button
+                class="close-btn"
+                onclick="closeModal('transferModal')">
+
+                &times;
+
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <form id="transferForm">
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Amount
+                    </label>
+
+                    <input
+                        type="number"
+                        class="form-input"
+                        id="transferAmount"
+                        placeholder="Enter amount"
+                        min="1"
+                        step="0.01"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        From Account
+                    </label>
+
+                    <select
+                        class="form-select"
+                        id="transferFrom"
+                        required>
+
+                        <option value="">
+                            Select account
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        To Account
+                    </label>
+
+                    <select
+                        class="form-select"
+                        id="transferTo"
+                        required>
+
+                        <option value="">
+                            Select account
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Description
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-input"
+                        id="transferDescription"
+                        placeholder="Optional">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Date
+                    </label>
+
+                    <input
+                        type="date"
+                        class="form-input"
+                        id="transferDate"
+                        required>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                class="btn btn-secondary"
+                onclick="closeModal('transferModal')">
+
+                Cancel
+
+            </button>
+
+
+            <button
+                class="btn btn-primary"
+                onclick="saveTransfer()">
+
+                Transfer Money
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="overviewFilterModal" class="modal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2 class="modal-title">
+                Filter Overview
+            </h2>
+
+            <button
+                class="close-btn"
+                onclick="closeModal('overviewFilterModal')">
+
+                &times;
+
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    From Date
+                </label>
+
+                <input
+                    type="date"
+                    id="overviewFromDate"
+                    class="form-input">
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    To Date
+                </label>
+
+                <input
+                    type="date"
+                    id="overviewToDate"
+                    class="form-input">
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                class="btn btn-secondary"
+                onclick="closeModal('overviewFilterModal')">
+
+                Cancel
+
+            </button>
+
+            <button
+                class="btn btn-primary"
+                id="applyOverviewFilter">
+
+                Apply Filter
+
+            </button>
+            <button
+    class="btn btn-secondary"
+    id="clearOverviewFilter">
+
+    Clear Filter
+
+</button>
+
+        </div>
+
+    </div>
+
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>

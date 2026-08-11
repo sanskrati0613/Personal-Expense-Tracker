@@ -28,14 +28,196 @@ let transactions = [
 
 
 let editingTransactionId = null;
+let editingAccountId = null;
 
 let searchTerm = "";
 let currentFilter = "all";
 let currentSort = "latest";
 let overviewChart = null;
 let expensePieChart = null;
+let selectedAccount = "all";
+
+let overviewFromDate = "";
+let overviewToDate = "";
 
 let monthlyBudget = 15000;
+
+let expensePeriod = "monthly";
+
+
+// ====================
+// Accounts
+// ====================
+
+let accounts = [
+    {
+        id: "cash",
+        name: "Cash",
+        type: "cash",
+        balance: 0
+    },
+    {
+        id: "bank",
+        name: "Bank Account",
+        type: "bank",
+        balance: 0
+    },
+    {
+        id: "upi",
+        name: "UPI",
+        type: "upi",
+        balance: 0
+    },
+    {
+        id: "credit",
+        name: "Credit Card",
+        type: "credit",
+        balance: 0
+    }
+];
+
+
+// Get transactions for the selected dashboard period
+function getDashboardTransactions() {
+
+    const period =
+        document.getElementById("dashboardPeriod").value;
+
+    const selectedDate =
+        document.getElementById("datePickerInput").value;
+
+    const now = selectedDate
+        ? new Date(selectedDate + "T00:00:00")
+        : new Date();
+
+
+    // First filter transactions by selected period
+    let periodTransactions =
+        transactions.filter(transaction => {
+
+            const [year, month, day] =
+                transaction.date.split("-").map(Number);
+
+            const transactionDate =
+                new Date(year, month - 1, day);
+
+
+            // Daily
+            if (period === "daily") {
+
+                return (
+                    transactionDate.getFullYear() === now.getFullYear() &&
+                    transactionDate.getMonth() === now.getMonth() &&
+                    transactionDate.getDate() === now.getDate()
+                );
+
+            }
+
+
+            // Weekly
+            if (period === "weekly") {
+
+                const startOfWeek =
+                    new Date(now);
+
+                const dayOfWeek =
+                    now.getDay();
+
+                startOfWeek.setDate(
+                    now.getDate() - dayOfWeek
+                );
+
+                startOfWeek.setHours(
+                    0, 0, 0, 0
+                );
+
+
+                const endOfWeek =
+                    new Date(startOfWeek);
+
+                endOfWeek.setDate(
+                    startOfWeek.getDate() + 6
+                );
+
+                endOfWeek.setHours(
+                    23, 59, 59, 999
+                );
+
+
+                return (
+                    transactionDate >= startOfWeek &&
+                    transactionDate <= endOfWeek
+                );
+
+            }
+
+
+            // Monthly
+            if (period === "monthly") {
+
+                return (
+                    transactionDate.getFullYear() === now.getFullYear() &&
+                    transactionDate.getMonth() === now.getMonth()
+                );
+
+            }
+
+
+            // Yearly
+            if (period === "yearly") {
+
+                return (
+                    transactionDate.getFullYear() === now.getFullYear()
+                );
+
+            }
+
+
+            return true;
+
+        });
+
+// Filter by custom date range
+if (overviewFromDate || overviewToDate) {
+
+    periodTransactions =
+        periodTransactions.filter(transaction => {
+
+            if (
+                overviewFromDate &&
+                transaction.date < overviewFromDate
+            ) {
+                return false;
+            }
+
+            if (
+                overviewToDate &&
+                transaction.date > overviewToDate
+            ) {
+                return false;
+            }
+
+            return true;
+
+        });
+
+}
+
+    // Then filter by selected account
+    if (selectedAccount !== "all") {
+
+        periodTransactions =
+            periodTransactions.filter(
+                transaction =>
+                    transaction.account === selectedAccount
+            );
+
+    }
+
+
+    return periodTransactions;
+
+}
 
 // ====================
 // Local Storage
@@ -52,6 +234,11 @@ function saveData() {
         "monthlyBudget",
         monthlyBudget
     );
+
+    localStorage.setItem(
+    "accounts",
+    JSON.stringify(accounts)
+);
 
 }
 
@@ -72,10 +259,31 @@ function loadData() {
 
 }
 
+const savedAccounts =
+    localStorage.getItem("accounts");
+
+if (savedAccounts) {
+
+    accounts =
+        JSON.parse(savedAccounts);
+
+}
+
+transactions.forEach(transaction => {
+
+    if (!transaction.account) {
+
+        transaction.account = "bank";
+
+    }
+
+});
+
 }
 
 // Set today's date as default
 const today = new Date().toISOString().split("T")[0];
+document.getElementById("datePickerInput").value = today;
 document.getElementById("incomeDate").value = today;
 document.getElementById("expenseDate").value = today;
 
@@ -90,31 +298,694 @@ function openExpenseModal() {
   document.body.style.overflow = "hidden";
 }
 
-function closeModal(modalId) {
-  document.getElementById(modalId).style.display = "none";
-  document.body.style.overflow = "auto";
+function openTransferModal() {
 
-  // Reset forms
-  if (modalId === "incomeModal") {
-    document.getElementById("incomeForm").reset();
-    document.getElementById("incomeDate").value = today;
-  } else {
-    document.getElementById("expenseForm").reset();
-    document.getElementById("expenseDate").value = today;
-  }
+    const modal =
+        document.getElementById("transferModal");
+
+    const dateInput =
+        document.getElementById("transferDate");
+
+    dateInput.value = today;
+
+    populateTransferAccounts();
+
+    modal.style.display = "block";
+
+    document.body.style.overflow = "hidden";
+
+}
+
+document
+    .getElementById("addTransferBtn")
+    .addEventListener("click", openTransferModal);
+
+
+function populateTransferAccounts() {
+
+    const fromSelect =
+        document.getElementById("transferFrom");
+
+    const toSelect =
+        document.getElementById("transferTo");
+
+
+    const options =
+        accounts
+            .map(account => {
+
+                return `
+                    <option value="${account.id}">
+                        ${account.name}
+                    </option>
+                `;
+
+            })
+            .join("");
+
+
+    fromSelect.innerHTML =
+        `<option value="">
+            Select account
+        </option>
+        ${options}`;
+
+
+    toSelect.innerHTML =
+        `<option value="">
+            Select account
+        </option>
+        ${options}`;
+
+}
+
+function saveTransfer() {
+
+    const amount =
+        parseFloat(
+            document.getElementById("transferAmount").value
+        );
+
+    const fromAccount =
+        document.getElementById("transferFrom").value;
+
+    const toAccount =
+        document.getElementById("transferTo").value;
+
+    const description =
+        document.getElementById("transferDescription").value;
+
+    const date =
+        document.getElementById("transferDate").value;
+
+
+    if (
+        !amount ||
+        amount <= 0 ||
+        !fromAccount ||
+        !toAccount ||
+        !date
+    ) {
+
+        showNotification(
+            "Please fill in all required fields.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (fromAccount === toAccount) {
+
+        showNotification(
+            "From and To accounts must be different.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const sourceAccount =
+        accounts.find(
+            account => account.id === fromAccount
+        );
+
+
+    if (!sourceAccount) {
+
+        showNotification(
+            "Source account not found.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    calculateAccountBalances();
+
+
+    if (sourceAccount.balance < amount) {
+
+        showNotification(
+            "Insufficient balance in the source account.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const transferId =
+        Date.now();
+
+
+    const transferOut = {
+
+        id: transferId,
+
+        date: date,
+
+        category: "Transfer",
+
+        account: fromAccount,
+
+        amount: -amount,
+
+        status: "Success",
+
+        type: "transfer",
+
+        description:
+            description ||
+            `Transfer to ${getAccountName(toAccount)}`,
+
+        transferId: transferId,
+
+        transferDirection: "out",
+
+        transferAccount: toAccount
+
+    };
+
+
+    const transferIn = {
+
+        id: transferId + 1,
+
+        date: date,
+
+        category: "Transfer",
+
+        account: toAccount,
+
+        amount: amount,
+
+        status: "Success",
+
+        type: "transfer",
+
+        description:
+            description ||
+            `Transfer from ${getAccountName(fromAccount)}`,
+
+        transferId: transferId,
+
+        transferDirection: "in",
+
+        transferAccount: fromAccount
+
+    };
+
+
+    transactions.push(
+        transferOut,
+        transferIn
+    );
+
+
+    saveData();
+
+    calculateAccountBalances();
+
+    updateDashboard();
+
+    updateTransactionsTable();
+
+    closeModal("transferModal");
+
+
+    document
+        .getElementById("transferForm")
+        .reset();
+
+
+    showNotification(
+        `₹${amount.toLocaleString("en-IN")} transferred successfully!`
+    );
+
+}
+
+function openBudgetModal() {
+
+    const budgetInput = document.getElementById("budgetInput");
+
+    budgetInput.value = monthlyBudget;
+
+    document.getElementById("budgetModal").style.display = "block";
+
+    document.body.style.overflow = "hidden";
+}
+
+function openAccountModal(accountId = null) {
+
+    const modal =
+        document.getElementById("accountModal");
+
+    const title =
+        document.getElementById("accountModalTitle");
+
+    const nameInput =
+        document.getElementById("accountName");
+
+    const typeInput =
+        document.getElementById("accountType");
+
+
+    editingAccountId = accountId;
+
+
+    if (accountId) {
+
+        const account =
+            accounts.find(
+                acc => acc.id === accountId
+            );
+
+        if (!account) return;
+
+        title.textContent = "Edit Account";
+
+        nameInput.value = account.name;
+
+        typeInput.value = account.type;
+
+    } else {
+
+        title.textContent = "Add Account";
+
+        nameInput.value = "";
+
+        typeInput.value = "";
+
+    }
+
+
+    modal.style.display = "block";
+
+    document.body.style.overflow = "hidden";
+
+}
+
+function closeModal(modalId) {
+
+    document.getElementById(modalId).style.display = "none";
+
+    document.body.style.overflow = "auto";
+
+
+    // Reset income form
+    if (modalId === "incomeModal") {
+
+        document.getElementById("incomeForm").reset();
+
+        document.getElementById("incomeDate").value = today;
+
+    }
+
+
+    // Reset expense form
+    else if (modalId === "expenseModal") {
+
+        document.getElementById("expenseForm").reset();
+
+        document.getElementById("expenseDate").value = today;
+
+    }
+
+
+    // Reset budget form
+    else if (modalId === "budgetModal") {
+
+        document.getElementById("budgetForm").reset();
+
+    }
+
+}
+
+document.getElementById("editBudgetBtn").addEventListener("click", function () {
+
+    openBudgetModal();
+
+});
+
+function saveAccount() {
+
+    const name =
+        document.getElementById("accountName")
+            .value.trim();
+
+    const type =
+        document.getElementById("accountType")
+            .value;
+
+
+    if (!name || !type) {
+
+        alert("Please fill in all required fields.");
+
+        return;
+
+    }
+
+
+    // Editing existing account
+
+    if (editingAccountId) {
+
+        const account =
+            accounts.find(
+                acc => acc.id === editingAccountId
+            );
+
+        if (account) {
+
+            account.name = name;
+            account.type = type;
+
+        }
+
+        showNotification(
+            "Account updated successfully!"
+        );
+
+    }
+
+
+    // Creating new account
+
+    else {
+
+        const newAccount = {
+
+            id:
+                "account_" +
+                Date.now(),
+
+            name: name,
+
+            type: type,
+
+            balance: 0
+
+        };
+
+
+        accounts.push(newAccount);
+
+
+        showNotification(
+            "Account added successfully!"
+        );
+
+    }
+
+
+    saveData();
+
+    populateAccountDropdowns();
+
+    calculateAccountBalances();
+    populateAccountFilter();
+
+    renderAccounts();
+
+    closeModal("accountModal");
+
+    editingAccountId = null;
+
+}
+
+function renderAccounts() {
+
+    const container =
+        document.getElementById("accountsList");
+
+    if (!container) return;
+
+
+    calculateAccountBalances();
+
+
+    container.innerHTML =
+        accounts.map(account => {
+
+            const balance =
+                Number(account.balance || 0);
+
+
+            return `
+
+                <div
+                    class="account-item"
+                    data-account-id="${account.id}">
+
+                    <div class="account-info">
+
+                        <div class="account-icon">
+                            ${getAccountIcon(account.type)}
+                        </div>
+
+                        <div>
+
+                            <div class="account-name">
+                                ${account.name}
+                            </div>
+
+                            <div class="account-type">
+                                ${formatAccountType(account.type)}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-right">
+
+                        <div
+                            class="account-balance
+                            ${balance < 0 ? "negative" : ""}">
+
+                            ₹${Math.abs(balance)
+                                .toLocaleString("en-IN")}
+
+                        </div>
+
+
+                        <div class="account-actions">
+
+                            <button
+                                onclick="openAccountModal('${account.id}')"
+                                title="Edit">
+
+                                <i class="fas fa-pen"></i>
+
+                            </button>
+
+
+                            <button
+                                onclick="deleteAccount('${account.id}')"
+                                title="Delete">
+
+                                <i class="fas fa-trash"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }).join("");
+
+}
+
+function getAccountIcon(type) {
+
+    const icons = {
+
+        cash: "💵",
+
+        bank: "🏦",
+
+        upi: "📱",
+
+        credit: "💳",
+
+        wallet: "👛",
+
+        other: "💰"
+
+    };
+
+
+    return icons[type] || "💰";
+
+}
+
+function formatAccountType(type) {
+
+    const names = {
+
+        cash: "Cash",
+
+        bank: "Bank Account",
+
+        upi: "UPI",
+
+        credit: "Credit Card",
+
+        wallet: "Digital Wallet",
+
+        other: "Other"
+
+    };
+
+
+    return names[type] || "Other";
+
+}
+
+function deleteAccount(accountId) {
+
+    const account =
+        accounts.find(
+            acc => acc.id === accountId
+        );
+
+
+    if (!account) return;
+
+
+    const transactionCount =
+        transactions.filter(
+            transaction =>
+                transaction.account === accountId
+        ).length;
+
+
+    if (transactionCount > 0) {
+
+        alert(
+            "This account has transactions and cannot be deleted yet."
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            `Delete "${account.name}"?`
+        );
+
+
+    if (!confirmed) return;
+
+
+    accounts =
+        accounts.filter(
+            acc => acc.id !== accountId
+        );
+if (selectedAccount === accountId) {
+
+    selectedAccount = "all";
+
+}
+
+    saveData();
+
+    populateAccountDropdowns();
+    populateAccountFilter();
+
+    renderAccounts();
+
+    showNotification(
+        "Account deleted successfully!"
+    );
+
+}
+
+function saveBudget() {
+
+    const budgetInput =
+        document.getElementById("budgetInput");
+
+    const newBudget =
+        parseFloat(budgetInput.value);
+
+    if (!newBudget || newBudget <= 0) {
+
+        alert("Please enter a valid budget.");
+
+        return;
+    }
+
+    monthlyBudget = newBudget;
+
+    saveData();
+
+    updateDashboard();
+
+    closeModal("budgetModal");
+
+    showNotification("Budget updated successfully!");
+
 }
 
 // Close modal when clicking outside
 window.onclick = function (event) {
-  const incomeModal = document.getElementById("incomeModal");
-  const expenseModal = document.getElementById("expenseModal");
 
-  if (event.target === incomeModal) {
-    closeModal("incomeModal");
-  }
-  if (event.target === expenseModal) {
-    closeModal("expenseModal");
-  }
+    const incomeModal =
+        document.getElementById("incomeModal");
+
+    const expenseModal =
+        document.getElementById("expenseModal");
+
+    const budgetModal =
+        document.getElementById("budgetModal");
+
+
+    const transferModal =
+    document.getElementById("transferModal");
+
+if (event.target === transferModal) {
+
+    closeModal("transferModal");
+
+}
+
+    if (event.target === incomeModal) {
+
+        closeModal("incomeModal");
+
+    }
+
+
+    if (event.target === expenseModal) {
+
+        closeModal("expenseModal");
+
+    }
+
+
+    if (event.target === budgetModal) {
+
+        closeModal("budgetModal");
+
+    }
+
 };
 
 // Add income function
@@ -123,6 +994,8 @@ function addIncome() {
   const category = document.getElementById("incomeCategory").value;
   const description = document.getElementById("incomeDescription").value;
   const date = document.getElementById("incomeDate").value;
+  const account =
+    document.getElementById("incomeAccount").value;
 
   if(editingTransactionId){
 
@@ -150,7 +1023,7 @@ function addIncome() {
     return;
   }
 
-  if (!amount || !category || !date) {
+  if (!amount || !category || !account || !date) {
     alert("Please fill in all required fields");
     return;
   }
@@ -160,6 +1033,7 @@ function addIncome() {
     id: Date.now(),
     date: date,
     category: category.charAt(0).toUpperCase() + category.slice(1),
+    account: account,
     amount: amount,
     status: "Success",
     type: "income",
@@ -185,6 +1059,8 @@ function addExpense() {
   const category = document.getElementById("expenseCategory").value;
   const description = document.getElementById("expenseDescription").value;
   const date = document.getElementById("expenseDate").value;
+  const account =
+    document.getElementById("expenseAccount").value;
 
   if(editingTransactionId){
 
@@ -212,7 +1088,7 @@ function addExpense() {
     return;
   }
 
-  if (!amount || !category || !date) {
+  if (!amount || !category || !account || !date) {
     alert("Please fill in all required fields");
     return;
   }
@@ -222,6 +1098,7 @@ function addExpense() {
     id: Date.now(),
     date: date,
     category: category.charAt(0).toUpperCase() + category.slice(1),
+    account: account,
     amount: -amount,
     status: "Success",
     type: "expense",
@@ -283,22 +1160,67 @@ document.getElementById("clearFilters").addEventListener("click", function () {
     showNotification("Filters cleared!");
 });
 
+function populateAccountDropdowns() {
+
+    const incomeSelect =
+        document.getElementById("incomeAccount");
+
+    const expenseSelect =
+        document.getElementById("expenseAccount");
+
+
+    const options = accounts
+        .map(account => {
+
+            return `
+                <option value="${account.id}">
+                    ${account.name}
+                </option>
+            `;
+
+        })
+        .join("");
+
+
+    if (incomeSelect) {
+
+        incomeSelect.innerHTML =
+            `<option value="">Select account</option>
+             ${options}`;
+
+    }
+
+
+    if (expenseSelect) {
+
+        expenseSelect.innerHTML =
+            `<option value="">Select account</option>
+             ${options}`;
+
+    }
+
+}
+
 function calculateTotals() {
 
     let income = 0;
     let expense = 0;
 
-    transactions.forEach(transaction => {
+    const periodTransactions =
+        getDashboardTransactions();
 
-        if(transaction.type === "income"){
+    periodTransactions.forEach(transaction => {
 
-            income += transaction.amount;
+        if (transaction.type === "income") {
 
-        }else{
+    income += transaction.amount;
 
-            expense += Math.abs(transaction.amount);
+}
+else if (transaction.type === "expense") {
 
-        }
+    expense += Math.abs(transaction.amount);
+
+}
 
     });
 
@@ -307,9 +1229,119 @@ function calculateTotals() {
         income,
         expense,
         balance: income - expense,
-        totalTransactions: transactions.length
+        totalTransactions: periodTransactions.length
 
     };
+
+}
+
+function getExpensePeriodTransactions() {
+
+    const selectedDate =
+        document.getElementById("datePickerInput").value;
+
+    const now = selectedDate
+        ? new Date(selectedDate + "T00:00:00")
+        : new Date();
+
+
+    return transactions.filter(transaction => {
+
+        if (transaction.type !== "expense") {
+            return false;
+        }
+
+
+        const [year, month, day] =
+            transaction.date.split("-").map(Number);
+
+        const transactionDate =
+            new Date(year, month - 1, day);
+
+
+        // DAILY
+        if (expensePeriod === "daily") {
+
+            return (
+                transactionDate.getFullYear() === now.getFullYear() &&
+                transactionDate.getMonth() === now.getMonth() &&
+                transactionDate.getDate() === now.getDate()
+            );
+
+        }
+
+
+        // WEEKLY
+        if (expensePeriod === "weekly") {
+
+            const startOfWeek =
+                new Date(now);
+
+            const dayOfWeek =
+                now.getDay();
+
+            startOfWeek.setDate(
+                now.getDate() - dayOfWeek
+            );
+
+            startOfWeek.setHours(
+                0, 0, 0, 0
+            );
+
+
+            const endOfWeek =
+                new Date(startOfWeek);
+
+            endOfWeek.setDate(
+                startOfWeek.getDate() + 6
+            );
+
+            endOfWeek.setHours(
+                23, 59, 59, 999
+            );
+
+
+            return (
+                transactionDate >= startOfWeek &&
+                transactionDate <= endOfWeek
+            );
+
+        }
+
+
+        // MONTHLY
+        if (expensePeriod === "monthly") {
+
+            return (
+                transactionDate.getFullYear() === now.getFullYear() &&
+                transactionDate.getMonth() === now.getMonth()
+            );
+
+        }
+
+
+        return false;
+
+    });
+
+}
+
+function updateExpensePeriod() {
+
+    const periodTransactions =
+        getExpensePeriodTransactions();
+
+    let total = 0;
+
+    periodTransactions.forEach(transaction => {
+
+        total += Math.abs(transaction.amount);
+
+    });
+
+
+    document.getElementById("totalExpenses").textContent =
+        `₹${total.toLocaleString()}.00`;
 
 }
 
@@ -322,95 +1354,374 @@ function updateExpenseBreakdown(){
 
     const categories = {};
 
-    transactions.forEach(transaction=>{
+    const periodTransactions =
+        getExpensePeriodTransactions();
 
-        if(transaction.type==="expense"){
+
+    periodTransactions.forEach(transaction => {
+
+        if(transaction.type === "expense"){
 
             if(!categories[transaction.category]){
-
-                categories[transaction.category]=0;
-
+                categories[transaction.category] = 0;
             }
 
-            categories[transaction.category]+=Math.abs(transaction.amount);
+            categories[transaction.category] +=
+                Math.abs(transaction.amount);
 
         }
 
     });
 
-    Object.entries(categories).forEach(([category,amount])=>{
 
-        container.innerHTML += `
-<li class="expense-category">
+    Object.entries(categories).forEach(
+        ([category, amount]) => {
 
-    <div class="category-info">
+            container.innerHTML += `
 
-        <span>${category}</span>
+                <li class="expense-category">
 
-    </div>
+                    <div class="category-info">
+                        <span>${category}</span>
+                    </div>
 
-    <strong>₹${amount.toLocaleString()}</strong>
+                    <strong>
+                        ₹${amount.toLocaleString()}
+                    </strong>
 
-</li>
-`;
+                </li>
 
-    });
+            `;
+
+        }
+    );
 
 }
 
-function updateCharts(){
+function updateCharts() {
 
     const ctx =
         document.getElementById("overviewChart");
 
-    if(!ctx) return;
+    if (!ctx) return;
 
-    const totals = calculateTotals();
+    const period =
+        document.getElementById("dashboardPeriod").value;
 
-    if(overviewChart){
+    const selectedDate =
+        document.getElementById("datePickerInput").value;
 
+    const now = selectedDate
+        ? new Date(selectedDate + "T00:00:00")
+        : new Date();
+
+
+    // Destroy previous chart
+    if (overviewChart) {
         overviewChart.destroy();
+    }
+
+
+    let labels = [];
+    let incomeData = [];
+    let expenseData = [];
+
+
+    // =====================================
+    // DAILY
+    // =====================================
+
+    if (period === "daily") {
+
+        const dailyTransactions =
+            getDashboardTransactions();
+
+        let income = 0;
+        let expense = 0;
+
+        dailyTransactions.forEach(transaction => {
+
+            if (transaction.type === "income") {
+                income += transaction.amount;
+            }
+
+            if (transaction.type === "expense") {
+                expense += Math.abs(transaction.amount);
+            }
+
+        });
+
+        labels = ["Income", "Expense"];
+
+        incomeData = [income, 0];
+
+        expenseData = [0, expense];
 
     }
 
-    overviewChart = new Chart(ctx,{
 
-        type:"bar",
+    // =====================================
+    // WEEKLY
+    // =====================================
 
-        data:{
+    else if (period === "weekly") {
 
-            labels:["Income","Expense"],
+        labels = [
+            "Sun",
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat"
+        ];
 
-            datasets:[{
+        incomeData = Array(7).fill(0);
+        expenseData = Array(7).fill(0);
 
-                label:"Amount",
 
-                data:[
-                    totals.income,
-                    totals.expense
-                ],
+        const startOfWeek =
+            new Date(now);
 
-                backgroundColor:[
-                    "#10b981",
-                    "#ef4444"
-                ],
+        const dayOfWeek =
+            now.getDay();
 
-                borderRadius:8
+        startOfWeek.setDate(
+            now.getDate() - dayOfWeek
+        );
 
-            }]
+        startOfWeek.setHours(0, 0, 0, 0);
+
+
+        const endOfWeek =
+            new Date(startOfWeek);
+
+        endOfWeek.setDate(
+            startOfWeek.getDate() + 6
+        );
+
+        endOfWeek.setHours(23, 59, 59, 999);
+
+
+        transactions.forEach(transaction => {
+
+            const [year, month, day] =
+                transaction.date.split("-").map(Number);
+
+            const transactionDate =
+                new Date(year, month - 1, day);
+
+
+            if (
+                transactionDate >= startOfWeek &&
+                transactionDate <= endOfWeek
+            ) {
+
+                const dayIndex =
+                    transactionDate.getDay();
+
+
+                if (transaction.type === "income") {
+
+                    incomeData[dayIndex] +=
+                        transaction.amount;
+
+                }
+
+                if (transaction.type === "expense") {
+
+                    expenseData[dayIndex] +=
+                        Math.abs(transaction.amount);
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    // =====================================
+    // MONTHLY
+    // =====================================
+
+    else if (period === "monthly") {
+
+        labels = [
+            "Week 1",
+            "Week 2",
+            "Week 3",
+            "Week 4",
+            "Week 5"
+        ];
+
+        incomeData = Array(5).fill(0);
+        expenseData = Array(5).fill(0);
+
+
+        transactions.forEach(transaction => {
+
+            const [year, month, day] =
+                transaction.date.split("-").map(Number);
+
+            const transactionDate =
+                new Date(year, month - 1, day);
+
+
+            if (
+                transactionDate.getFullYear() ===
+                    now.getFullYear() &&
+                transactionDate.getMonth() ===
+                    now.getMonth()
+            ) {
+
+                const weekIndex =
+                    Math.min(
+                        Math.floor(
+                            (transactionDate.getDate() - 1) / 7
+                        ),
+                        4
+                    );
+
+
+                if (transaction.type === "income") {
+
+                    incomeData[weekIndex] +=
+                        transaction.amount;
+
+                }
+
+                if (transaction.type === "expense") {
+
+                    expenseData[weekIndex] +=
+                        Math.abs(transaction.amount);
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    // =====================================
+    // YEARLY
+    // =====================================
+
+    else if (period === "yearly") {
+
+        labels = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+        ];
+
+        incomeData = Array(12).fill(0);
+        expenseData = Array(12).fill(0);
+
+
+        transactions.forEach(transaction => {
+
+            const [year, month, day] =
+                transaction.date.split("-").map(Number);
+
+            const transactionDate =
+                new Date(year, month - 1, day);
+
+
+            if (
+                transactionDate.getFullYear() ===
+                now.getFullYear()
+            ) {
+
+                const monthIndex =
+                    transactionDate.getMonth();
+
+
+                if (transaction.type === "income") {
+
+                    incomeData[monthIndex] +=
+                        transaction.amount;
+
+                }
+
+                if (transaction.type === "expense") {
+
+                    expenseData[monthIndex] +=
+                        Math.abs(transaction.amount);
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    // =====================================
+    // CREATE CHART
+    // =====================================
+
+    overviewChart = new Chart(ctx, {
+
+        type: "bar",
+
+        data: {
+
+            labels: labels,
+
+            datasets: [
+
+                {
+                    label: "Income",
+                    data: incomeData,
+                    backgroundColor: "#10b981",
+                    borderRadius: 8
+                },
+
+                {
+                    label: "Expense",
+                    data: expenseData,
+                    backgroundColor: "#ef4444",
+                    borderRadius: 8
+                }
+
+            ]
 
         },
 
-        options:{
 
-            responsive:true,
+        options: {
 
-            maintainAspectRatio:false,
+            responsive: true,
 
-            plugins:{
+            maintainAspectRatio: false,
 
-                legend:{
-                    display:false
+            plugins: {
+
+                legend: {
+                    display: true,
+                    position: "top"
+                }
+
+            },
+
+            scales: {
+
+                y: {
+                    beginAtZero: true
                 }
 
             }
@@ -427,21 +1738,25 @@ function updateExpensePieChart(){
 
     if(!canvas) return;
 
-    const categories = {};
+   const categories = {};
 
-    transactions.forEach(transaction=>{
+const periodTransactions =
+    getExpensePeriodTransactions();
 
-        if(transaction.type==="expense"){
+periodTransactions.forEach(transaction=>{
 
-            if(!categories[transaction.category]){
-                categories[transaction.category]=0;
-            }
+    if(transaction.type==="expense"){
 
-            categories[transaction.category]+=Math.abs(transaction.amount);
-
+        if(!categories[transaction.category]){
+            categories[transaction.category]=0;
         }
 
-    });
+        categories[transaction.category] +=
+            Math.abs(transaction.amount);
+
+    }
+
+});
 
     const labels = Object.keys(categories);
     const values = Object.values(categories);
@@ -500,7 +1815,34 @@ function updateExpensePieChart(){
 // Update dashboard values
 function updateDashboard() {
 
+    calculateAccountBalances();
+renderAccounts();
+
   const totals = calculateTotals();
+
+  const period =
+    document.getElementById("dashboardPeriod").value;
+
+const periodLabels = {
+
+    daily: "Daily",
+
+    weekly: "Weekly",
+
+    monthly: "Monthly",
+
+    yearly: "Yearly"
+
+};
+
+const periodLabel =
+    periodLabels[period];
+
+document.getElementById("incomeCardTitle").textContent =
+    `${periodLabel} Income`;
+
+document.getElementById("expenseCardTitle").textContent =
+    `${periodLabel} Expenses`;
 
   document.getElementById("budgetAmount").textContent =
 `₹${monthlyBudget.toLocaleString()}.00`;
@@ -632,6 +1974,15 @@ if (currentFilter !== "all") {
 
 }
 
+if (selectedAccount !== "all") {
+
+    filtered =
+        filtered.filter(transaction =>
+            transaction.account === selectedAccount
+        );
+
+}
+
 switch (currentSort) {
 
     case "latest":
@@ -665,7 +2016,7 @@ if (recentTransactions.length === 0) {
 
     tbody.innerHTML = `
         <tr>
-            <td colspan="5" style="text-align:center; padding:30px;">
+            <td colspan="6" style="text-align:center; padding:30px;">
                 No transactions found.
             </td>
         </tr>
@@ -693,6 +2044,9 @@ if (recentTransactions.length === 0) {
     row.innerHTML = `
                     <td>${formattedDate}</td>
                     <td>${transaction.category}</td>
+                    <td>
+    ${getAccountName(transaction.account)}
+</td>
                     <td style="color: ${transaction.amount > 0 ? "#10b981" : "#ef4444"
       }">${amountDisplay}</td>
                     <td><span class="status-success">${transaction.status
@@ -818,11 +2172,397 @@ style.textContent = `
         `;
 document.head.appendChild(style);
 
+    function updateGreeting() {
+
+    const hour = new Date().getHours();
+
+    let greeting;
+
+    if (hour < 12) {
+
+        greeting = "Good Morning";
+
+    } else if (hour < 18) {
+
+        greeting = "Good Afternoon";
+
+    } else {
+
+        greeting = "Good Evening";
+
+    }
+
+    document.getElementById("greeting").textContent =
+        `${greeting}, Sanskrati!`;
+
+}
+
+function updateCurrentDate() {
+
+    const dateInput =
+        document.getElementById("datePickerInput");
+
+    const date =
+        dateInput.value
+            ? new Date(dateInput.value + "T00:00:00")
+            : new Date();
+
+    const formattedDate =
+        date.toLocaleDateString("en-IN", {
+
+            day: "numeric",
+
+            month: "long",
+
+            year: "numeric"
+
+        });
+
+    document
+        .querySelector("#currentDate span")
+        .textContent = formattedDate;
+
+}
+
+document
+    .getElementById("currentDate")
+    .addEventListener("click", function () {
+
+        const dateInput =
+            document.getElementById("datePickerInput");
+
+        dateInput.showPicker();
+
+    });
+
+document
+    .getElementById("datePickerInput")
+    .addEventListener("change", function () {
+
+        updateCurrentDate();
+
+        updateDashboard();
+
+        showNotification(
+            "Dashboard date updated!"
+        );
+
+    });
+
+function exportTransactions() {
+
+    if (transactions.length === 0) {
+
+        showNotification(
+            "No transactions to export.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const headers = [
+        "Date",
+        "Type",
+        "Category",
+        "Description",
+        "Amount",
+        "Status"
+    ];
+
+
+    const rows = transactions.map(transaction => {
+
+        return [
+
+            transaction.date,
+
+            transaction.type,
+
+            transaction.category,
+
+            transaction.description || "",
+
+            Math.abs(transaction.amount).toFixed(2),
+
+            transaction.status
+
+        ];
+
+    });
+
+
+    const csvRows = [
+        headers,
+        ...rows
+    ];
+
+
+    const csvContent =
+        csvRows
+            .map(row => {
+
+                return row.map(value => {
+
+                    const text =
+                        String(value)
+                        .replace(/"/g, '""');
+
+                    return `"${text}"`;
+
+                }).join(",");
+
+            })
+            .join("\n");
+
+
+    const blob = new Blob(
+        ["\uFEFF" + csvContent],
+        {
+            type: "text/csv;charset=utf-8;"
+        }
+    );
+
+
+    const url =
+        URL.createObjectURL(blob);
+
+
+    const link =
+        document.createElement("a");
+
+    link.href = url;
+
+    link.download =
+        "personal-finance-transactions.csv";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+
+
+    showNotification(
+        "Transactions exported successfully!"
+    );
+
+}
+
+document
+    .getElementById("exportBtn")
+    .addEventListener("click", exportTransactions);
+
+
+
+    function getAccountName(accountId) {
+
+    const account =
+        accounts.find(
+            account => account.id === accountId
+        );
+
+    return account
+        ? account.name
+        : "Unknown";
+
+}
+
+function calculateAccountBalances() {
+
+    accounts.forEach(account => {
+
+        account.balance = 0;
+
+    });
+
+
+    transactions.forEach(transaction => {
+
+        if (!transaction.account) {
+            return;
+        }
+
+
+        const account =
+            accounts.find(
+                acc => acc.id === transaction.account
+            );
+
+
+        if (!account) {
+            return;
+        }
+
+
+        account.balance +=
+            transaction.amount;
+
+    });
+
+}
+
+function populateAccountFilter() {
+
+    const select =
+        document.getElementById("accountFilter");
+
+    if (!select) return;
+
+    select.innerHTML = `
+        <option value="all">
+            All Accounts
+        </option>
+    `;
+
+    accounts.forEach(account => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = account.id;
+
+        option.textContent =
+            account.name;
+
+        select.appendChild(option);
+
+    });
+
+}
+
+document
+    .getElementById("accountFilter")
+    .addEventListener("change", function () {
+
+        selectedAccount =
+            this.value;
+
+        updateTransactionsTable();
+
+        updateDashboard();
+
+    });
+
+document
+    .getElementById("overviewFilterBtn")
+    .addEventListener("click", function () {
+
+        document
+            .getElementById("overviewFilterModal")
+            .style.display = "block";
+
+        document.body.style.overflow = "hidden";
+
+    });
+
+document
+    .getElementById("applyOverviewFilter")
+    .addEventListener("click", function () {
+
+        overviewFromDate =
+            document.getElementById("overviewFromDate").value;
+
+        overviewToDate =
+            document.getElementById("overviewToDate").value;
+
+
+        if (
+            overviewFromDate &&
+            overviewToDate &&
+            overviewFromDate > overviewToDate
+        ) {
+
+            showNotification(
+                "From date cannot be after To date.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        closeModal("overviewFilterModal");
+
+        updateDashboard();
+
+        showNotification(
+            "Overview filter applied!"
+        );
+
+    });
+
+    document
+    .getElementById("clearOverviewFilter")
+    .addEventListener("click", function () {
+
+        overviewFromDate = "";
+        overviewToDate = "";
+
+        document.getElementById(
+            "overviewFromDate"
+        ).value = "";
+
+        document.getElementById(
+            "overviewToDate"
+        ).value = "";
+
+        closeModal("overviewFilterModal");
+
+        updateDashboard();
+
+        showNotification(
+            "Overview filter cleared!"
+        );
+
+    });
+
+
+
+    document
+    .querySelectorAll(".period-tab")
+    .forEach(tab => {
+
+        tab.addEventListener("click", function () {
+
+            document
+                .querySelectorAll(".period-tab")
+                .forEach(item => {
+                    item.classList.remove("active");
+                });
+
+
+            this.classList.add("active");
+
+
+            expensePeriod =
+                this.dataset.expensePeriod;
+
+
+            updateExpensePeriod();
+
+        });
+
+    });
+
+    document.querySelectorAll(".card-menu").forEach(button => {
+    button.addEventListener("click", function () {
+        showNotification("More options coming soon!");
+    });
+});
+
 // Keyboard shortcuts
 document.addEventListener("keydown", function (e) {
   if (e.key === "Escape") {
     closeModal("incomeModal");
     closeModal("expenseModal");
+    closeModal("budgetModal");
+    closeModal("transferModal");
   }
 
   if (e.ctrlKey && e.key === "i") {
@@ -850,9 +2590,65 @@ document.querySelectorAll(".card").forEach((card) => {
   });
 });
 
-// Initialize the dashboard on load
+
+
+
+function handlePeriodChange(source) {
+
+    const headerPeriod =
+        document.getElementById("headerDashboardPeriod");
+
+    const overviewPeriod =
+        document.getElementById("dashboardPeriod");
+
+    const selectedPeriod = source.value;
+
+    // Keep both dropdowns synchronized
+    if (headerPeriod && source !== headerPeriod) {
+        headerPeriod.value = selectedPeriod;
+    }
+
+    if (overviewPeriod && source !== overviewPeriod) {
+        overviewPeriod.value = selectedPeriod;
+    }
+
+    // Update everything
+    updateDashboard();
+
+    showNotification("Dashboard period updated!");
+}
+
+
+// Header dropdown
+document
+    .getElementById("headerDashboardPeriod")
+    .addEventListener("change", function () {
+        handlePeriodChange(this);
+    });
+
+
+// Overview dropdown
+document
+    .getElementById("dashboardPeriod")
+    .addEventListener("change", function () {
+        handlePeriodChange(this);
+    });
+
+    // Initialize the dashboard on load
 document.addEventListener("DOMContentLoaded", function () {
-  loadData();
-  updateDashboard();
-  updateTransactionsTable();
+    loadData();
+
+    populateAccountDropdowns();
+    populateAccountFilter();
+
+    calculateAccountBalances();
+
+    renderAccounts();
+
+    updateDashboard();
+    updateTransactionsTable();
+    updateGreeting();
+    updateCurrentDate();
+    updateExpensePeriod();
+    
 });
