@@ -1,3 +1,18 @@
+/* =========================================================
+   Personal Expense Tracker - Stylesheet
+   Sections: Reset & Base, Header, Main Layout, Accounts +
+   Categories Layout, My Card / Budget Widget, Dashboard Cards,
+   Overview Chart, Expense Breakdown, Transactions Table,
+   Floating Action Buttons, Modals & Forms, Shared Dashboard
+   Controls, Animations, Responsive / Media Queries, Budget
+   Modal Overrides, Accounts List, Toggle Switch, Category
+   Management Cards, Budget Progress
+   ========================================================= */
+
+/* ===============================================
+   RESET & BASE STYLES
+   =============================================== */
+
 * {
   margin: 0;
   padding: 0;
@@ -21,6 +36,10 @@ body {
   color: #1e293b;
   line-height: 1.5;
 }
+
+/* ===============================================
+   HEADER
+   =============================================== */
 
 .header {
   background: white;
@@ -72,6 +91,10 @@ body {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   display: flex;
+  /* ===============================================
+   MAIN LAYOUT / DASHBOARD GRID
+   =============================================== */
+
   align-items: center;
   gap: 0.5rem;
 }
@@ -82,12 +105,55 @@ body {
   margin: 0 auto;
 }
 
-.dashboard-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:2rem;
-    margin-bottom:2rem;
-    align-items:start;
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  margin-bottom: 2rem;
+  align-items: start;
+}
+
+/* =========================================
+   ACCOUNTS + CATEGORIES LAYOUT
+   ========================================= */
+
+/* Accounts occupies the left half */
+.accounts-card {
+  grid-column: 1 / 3;
+  width: 100%;
+  align-self: stretch;
+}
+
+/* Categories occupies the right half */
+.categories-management-section {
+  grid-column: 3 / 5;
+
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  width: 100%;
+  align-self: stretch;
+
+  min-height: 280px;
+}
+
+/* Make the Categories header look like the other cards */
+.categories-management-section .section-header {
+  margin-bottom: 1rem;
+}
+
+/* =========================================
+   MY CARD
+   ========================================= */
+
+.my-card {
+  grid-column: 2 / 4;
+  width: 100%;
+  justify-self: center;
+  align-self: start;
 }
 
 .card {
@@ -148,44 +214,40 @@ body {
   opacity: 0.9;
 }
 
-.budget-header{
+.budget-header {
+  display: flex;
 
-    display:flex;
+  justify-content: space-between;
 
-    justify-content:space-between;
+  align-items: center;
 
-    align-items:center;
-
-    margin-bottom:10px;
-
+  margin-bottom: 10px;
 }
 
-.budget-value{
+.budget-value {
+  font-size: 2rem;
 
-    font-size:2rem;
+  font-weight: 700;
 
-    font-weight:700;
-
-    margin:20px 0;
-
+  margin: 20px 0;
 }
 
-#editBudgetBtn{
-    background:rgba(255,255,255,.2);
-    color:white;
-    border:1px solid rgba(255,255,255,.3);
-    padding:8px 16px;
-    border-radius:8px;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    transition:.3s;
-    font-weight:600;
+#editBudgetBtn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.3s;
+  font-weight: 600;
 }
 
-#editBudgetBtn:hover{
-    background:rgba(255,255,255,.35);
+#editBudgetBtn:hover {
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .my-card {
@@ -193,9 +255,9 @@ body {
   color: white;
   position: relative;
   overflow: hidden;
-  grid-column:2 / 4;
-  width:100%;
-  justify-self:center;
+  grid-column: 2 / 4;
+  width: 100%;
+  justify-self: center;
 }
 
 .card-chip {
@@ -278,41 +340,13 @@ body {
   border-radius: 3px;
 }
 
+/* ===============================================
+   OVERVIEW CHART
+   =============================================== */
+
 .yearly-container {
   display: flex;
   gap: 1rem;
-}
-
-.chart-bar1 {
-  height: 120px;
-}
-
-.chart-bar2 {
-  height: 80px;
-}
-
-.chart-bar {
-  height: 200px;
-}
-
-.monthly-expense {
-  position: absolute;
-  top: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  font-size: 0.75rem;
-}
-
-.chart-bar-income {
-  height: 120px;
-}
-
-.chart-bar-expense {
-  height: 80px;
 }
 
 .chart-section {
@@ -322,48 +356,19 @@ body {
   gap: 2rem;
 }
 
-.chart-container{
-    position: relative;
-    height: 350px;
-    width: 100%;
-}
-#overviewChart{
-    width:100% !important;
-    height:100% !important;
-}
-
-.chart-bar {
-  width: 40px;
-  background: #e5e7eb;
-  border-radius: 4px 4px 0 0;
+.chart-container {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  height: 350px;
+  width: 100%;
+}
+#overviewChart {
+  width: 100% !important;
+  height: 100% !important;
 }
 
-.chart-bar.active {
-  background: linear-gradient(to top, #ea580c, #fb923c);
-}
-
-.chart-bar-income {
-  background: #10b981;
-  margin-bottom: 4px;
-  border-radius: 4px;
-}
-
-.chart-bar-expense {
-  background: #ea580c;
-  border-radius: 4px;
-}
-
-.chart-labels {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-  font-size: 0.75rem;
-  color: #6b7280;
-}
+/* ===============================================
+   EXPENSE BREAKDOWN (PIE CHART)
+   =============================================== */
 
 .expenses-breakdown {
   margin-top: 1rem;
@@ -408,23 +413,16 @@ body {
   margin-bottom: 1rem;
 }
 
-.color-bar {
-  height: 6px;
-  border-radius: 3px;
-  background: linear-gradient(to right, #ea580c, #f59e0b, #eab308, #10b981);
-  margin-bottom: 1rem;
+.pie-chart-container {
+  width: 100%;
+  height: 250px;
+  margin: 20px 0;
+  position: relative;
 }
 
-.pie-chart-container{
-    width:100%;
-    height:250px;
-    margin:20px 0;
-    position:relative;
-}
-
-#expensePieChart{
-    width:100% !important;
-    height:100% !important;
+#expensePieChart {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .expense-categories {
@@ -445,27 +443,9 @@ body {
   gap: 0.5rem;
 }
 
-.category-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.dot-food {
-  background: #ea580c;
-}
-
-.dot-entertainment {
-  background: #f59e0b;
-}
-
-.dot-shopping {
-  background: #eab308;
-}
-
-.dot-investments {
-  background: #10b981;
-}
+/* ===============================================
+   TRANSACTIONS TABLE & FILTERS
+   =============================================== */
 
 .transactions-section {
   grid-column: 1 / -1;
@@ -556,12 +536,6 @@ body {
   color: #1d4ed8;
 }
 
-/* .transactions-table th,
-.transactions-table td{
-    padding:16px;
-    text-align:left;
-} */
-
 .status-success {
   background: #dcfce7;
   color: #16a34a;
@@ -571,13 +545,9 @@ body {
   font-weight: 600;
 }
 
-.action-btn {
-  background: none;
-  border: none;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 0.25rem;
-}
+/* ===============================================
+   FLOATING ACTION BUTTONS (FABs)
+   =============================================== */
 
 .add-buttons {
   position: fixed;
@@ -609,6 +579,10 @@ body {
 .fab-expense {
   background: #ef4444;
 }
+
+/* ===============================================
+   MODALS & FORMS
+   =============================================== */
 
 .modal {
   display: none;
@@ -715,121 +689,129 @@ body {
   color: #374151;
 }
 
+/* ===============================================
+   SHARED DASHBOARD CONTROLS
+   =============================================== */
+
 #dashboardPeriod {
-    appearance: auto;
-    background: white;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    cursor: pointer;
-    color: #1e293b;
-    min-width: 95px;
+  appearance: auto;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: #1e293b;
+  min-width: 95px;
 }
 
 .accounts-card {
-    min-height: 280px;
+  min-height: 280px;
 }
 
 .add-account-btn {
-    border: none;
-    background: transparent;
-    color: #2563eb;
-    font-weight: 600;
-    cursor: pointer;
+  border: none;
+  background: transparent;
+  color: #2563eb;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .accounts-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
 }
 
 .account-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px;
-    border-radius: 12px;
-    background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
 }
 
 .account-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .account-icon {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    background: #ffffff;
-    font-size: 20px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 20px;
 }
 
 .account-name {
-    font-weight: 600;
+  font-weight: 600;
 }
 
 .account-type {
-    font-size: 12px;
-    color: #6b7280;
-    margin-top: 3px;
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 3px;
 }
 
 .account-right {
-    text-align: right;
+  text-align: right;
 }
 
 .account-balance {
-    font-weight: 700;
+  font-weight: 700;
 }
 
 .account-balance.negative {
-    color: #dc2626;
+  color: #dc2626;
 }
 
 .account-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 6px;
-    margin-top: 5px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 5px;
 }
 
 .account-actions button {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    color: #6b7280;
-    padding: 3px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 3px;
 }
 
 .account-actions button:hover {
-    color: #2563eb;
+  color: #2563eb;
 }
 
 .fab-transfer {
-    background: #6366f1;
+  background: #6366f1;
 }
 
 .fab-transfer:hover {
-    transform: translateY(-2px);
+  transform: translateY(-2px);
 }
 
 #accountFilter {
-    background: white;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    color: #374151;
-    cursor: pointer;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
 }
+
+/* ===============================================
+   ANIMATIONS
+   =============================================== */
 
 @keyframes fadeIn {
   from {
@@ -851,47 +833,43 @@ body {
   }
 }
 
-@media(max-width:1200px){
+/* ===============================================
+   RESPONSIVE / MEDIA QUERIES
+   =============================================== */
 
-.dashboard-grid{
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
-    grid-template-columns:repeat(2,1fr);
-
+  .my-card {
+    grid-column: 1/-1;
+  }
 }
 
-.my-card{
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
 
-    grid-column:1/-1;
-
-}
-
-}
-
-@media(max-width:768px){
-
-.dashboard-grid{
-
-    grid-template-columns:1fr;
-
-}
-
-.my-card{
-
-    grid-column:1;
-
-}
-
+  .my-card {
+    grid-column: 1;
+  }
 }
 
 /* Budget Modal */
 
+/* ===============================================
+   BUDGET MODAL OVERRIDES
+   =============================================== */
+
 #budgetModal .modal-content {
-    max-width: 450px;
+  max-width: 450px;
 }
 
 #budgetInput {
-    font-size: 1.1rem;
-    font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 @media (max-width: 992px) {
@@ -917,4 +895,268 @@ body {
     flex: 1;
     min-width: 140px;
   }
+}
+
+/* Account Include in Total Toggle */
+
+/* ===============================================
+   INCLUDE-IN-TOTAL TOGGLE SWITCH
+   =============================================== */
+
+.account-toggle-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.account-toggle-group .form-label {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: #d1d5db;
+  border-radius: 26px;
+  transition: 0.3s;
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.3s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: #10b981;
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(24px);
+}
+
+.toggle-description {
+  width: 100%;
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.account-total-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-size: 0.85rem;
+}
+
+.account-status-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 10px;
+}
+
+.account-status-badge.included {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.account-status-badge.excluded {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* ===============================================
+   CATEGORY MANAGEMENT CARDS
+   =============================================== */
+
+.categories-management-section {
+  margin-top: 24px;
+}
+
+.categories-management-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.category-management-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.category-management-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.category-management-card-name {
+  font-weight: 600;
+}
+
+.category-management-card-type {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.category-management-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.category-management-card-actions button {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.category-edit-btn {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.category-delete-btn {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.category-management-card-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.category-management-card-budget {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.category-management-card-budget strong {
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+
+.category-management-card-budget {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.category-management-card-budget > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.category-management-card-budget span {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.category-management-card-budget strong {
+  color: #1e293b;
+}
+
+.budget-remaining {
+  color: #10b981 !important;
+}
+
+.budget-exceeded {
+  color: #ef4444 !important;
+}
+
+.category-budget-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.category-budget-progress-bar {
+  flex: 1;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.category-budget-progress-fill {
+  height: 100%;
+  border-radius: 10px;
+  background: #10b981;
+  transition: width 0.3s ease;
+}
+
+.category-budget-progress-text {
+  min-width: 42px;
+  text-align: right;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.category-budget-progress-fill.budget-progress-exceeded {
+  background: #ef4444;
+}
+
+.category-budget-status {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #f59e0b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.category-budget-status i {
+  /* ===============================================
+   BUDGET PROGRESS (CATEGORY CARDS)
+   =============================================== */
+
+  font-size: 0.75rem;
 }

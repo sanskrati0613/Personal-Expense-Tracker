@@ -1,840 +1,710 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Expense Tracker</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="header">
-        <h1 id="greeting">
-    Good Morning, Sanskrati!
-</h1>
-        <div class="header-controls">
-            <select id="headerDashboardPeriod" class="dropdown">
-    <option value="daily">Daily</option>
-    <option value="weekly">Weekly</option>
-    <option value="monthly" selected>Monthly</option>
-    <option value="yearly">Yearly</option>
-</select>
-            <div class="date-picker" id="currentDate">
-    <i class="fas fa-calendar"></i>
-    <span>16 January 2026</span>
-</div>
-<input
-    type="date"
-    id="datePickerInput"
-    style="display: none;"
->
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Personal Expense Tracker</title>
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="header">
+            <h1 id="greeting">Good Morning, Sanskrati!</h1>
+            <div class="header-controls">
+                <select id="headerDashboardPeriod" class="dropdown">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly" selected>Monthly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+                <div class="date-picker" id="currentDate">
+                    <i class="fas fa-calendar"></i>
+                    <span>16 January 2026</span>
+                </div>
+                <input type="date" id="datePickerInput" style="display: none" />
 
-            <div class="export-btn" id="exportBtn">
-                <i class="fas fa-download"></i>
-                Export
+                <div class="export-btn" id="exportBtn">
+                    <i class="fas fa-download"></i>
+                    Export
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="main-content">
-        <div class="dashboard-grid">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-    <i class="fas fa-wallet"></i>
-    <span id="incomeCardTitle">Monthly Income</span>
-</h3>
-                    <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
+        <div class="main-content">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-wallet"></i>
+                            <span id="incomeCardTitle">Monthly Income</span>
+                        </h3>
+                        <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
+                    </div>
+                    <div class="amount income-amount">₹ 20,000.00</div>
+                    <div class="change">
+                        <i class="fas fa-arrow-up"></i>
+                        12% vs Last month
+                    </div>
                 </div>
-                <div class="amount income-amount">₹ 20,000.00</div>
-                <div class="change">
-                    <i class="fas fa-arrow-up"></i>
-                    12% vs Last month
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-    <i class="fas fa-money-bill-wave"></i>
-    <span id="expenseCardTitle">Monthly Expenses</span>
-                    </h3>
-                    <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
-                </div>
-                <div class="amount expense-amount">₹ 8,000.00</div>
-                <div class="change">
-                    <i class="fas fa-arrow-up"></i>
-                    12% vs Last month
-                </div>
-            </div>
-
-            <div class="card">
-
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-chart-line"></i> Current Balance</h3>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span id="expenseCardTitle">Monthly Expenses</span>
+                        </h3>
+                        <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
+                    </div>
+                    <div class="amount expense-amount">₹ 8,000.00</div>
+                    <div class="change">
+                        <i class="fas fa-arrow-up"></i>
+                        12% vs Last month
+                    </div>
                 </div>
 
-                <div class="amount" id="currentBalance">
-                    ₹0
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-line"></i> Current Balance
+                        </h3>
+                    </div>
+
+                    <div class="amount" id="currentBalance">₹0</div>
+
+                    <div class="change" id="balanceStatus">Updated automatically</div>
                 </div>
 
-                <div class="change" id="balanceStatus">
-                    Updated automatically
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-receipt"></i> Total Transactions
+                        </h3>
+                    </div>
+
+                    <div class="amount" id="totalTransactions">0</div>
+
+                    <p id="transactionSummary">0 Income • 0 Expense</p>
                 </div>
 
-            </div>
+                <div class="card accounts-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-wallet"></i>
+                            My Accounts
+                        </h3>
 
-            <div class="card">
-
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-receipt"></i> Total Transactions
-                    </h3>
-                </div>
-
-                <div class="amount" id="totalTransactions">
-                    0
-                </div>
-
-                <p id="transactionSummary">
-                    0 Income • 0 Expense
-                </p>
-
-            </div>
-
-            <div class="card accounts-card">
-
-    <div class="card-header">
-
-        <h3 class="card-title">
-            <i class="fas fa-wallet"></i>
-            My Accounts
-        </h3>
-
-        <button
-            class="add-account-btn"
-            onclick="openAccountModal()">
-            <i class="fas fa-plus"></i>
-            Add
-        </button>
-
-    </div>
-
-    <div
-        id="accountsList"
-        class="accounts-list">
-    </div>
-
-</div>
-
-            <div class="card my-card">
-                <div class="card-header">
-                    <h3 class="card-title">My Card</h3>
-                    <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
-                </div>
-                <div class="wallet">Linked to your primary wallet</div>
-
-                <div class="card-chip"></div>
-                <div class="card-number">5435 7685 6785 6478</div>
-                <div class="card-holder">Sanskrati</div>
-
-                <div class="card-logo">
-                    <div class="card-logo-circle logo-red"></div>
-                    <div class="card-logo-circle logo-orange"></div>
-                </div>
-
-                
-
-                <div class="spending-section">
-                    <div class="budget-header">
-
-                        <span>
-                            Monthly Budget
-                        </span>
-
-                        <button id="editBudgetBtn" class="btn-secondary">
-                            <i class="fas fa-pen"></i>
-                            Edit
-
+                        <button class="add-account-btn" onclick="openAccountModal()">
+                            <i class="fas fa-plus"></i>
+                            Add
                         </button>
-
                     </div>
 
-                    <div class="budget-value" id="budgetAmount">
+                    <div id="accountsList" class="accounts-list"></div>
+                </div>
 
-                    ₹15,000.00
+                <!-- Categories Section -->
+                <div class="dashboard-section categories-management-section">
+                    <div class="section-header">
+                        <div>
+                            <h2>Categories</h2>
+                            <p class="section-subtitle">
+                                Manage your income and expense categories
+                            </p>
+                        </div>
 
+                        <button class="btn btn-primary" onclick="openCategoryModal()">
+                            <i class="fas fa-plus"></i>
+                            Add Category
+                        </button>
                     </div>
-                    
-                    <div class="spending-limit-text">Remaining Budget</div>
-                    <div class="spending-limit">₹ 5,000.00</div>
-                    <div class="spending-used" id="spendingUsed">used from ₹0</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
+
+                    <div class="categories-management-grid" id="categoriesManagementGrid">
+                        <!-- Categories will be inserted here -->
+                    </div>
+                </div>
+
+                <div class="card my-card">
+                    <div class="card-header">
+                        <h3 class="card-title">My Card</h3>
+                        <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
+                    </div>
+                    <div class="wallet">Linked to your primary wallet</div>
+
+                    <div class="card-chip"></div>
+                    <div class="card-number">5435 7685 6785 6478</div>
+                    <div class="card-holder">Sanskrati</div>
+
+                    <div class="card-logo">
+                        <div class="card-logo-circle logo-red"></div>
+                        <div class="card-logo-circle logo-orange"></div>
+                    </div>
+
+                    <div class="spending-section">
+                        <div class="budget-header">
+                            <span> Monthly Budget </span>
+
+                            <button id="editBudgetBtn" class="btn-secondary">
+                                <i class="fas fa-pen"></i>
+                                Edit
+                            </button>
+                        </div>
+
+                        <div class="budget-value" id="budgetAmount">₹15,000.00</div>
+
+                        <div class="spending-limit-text">Remaining Budget</div>
+                        <div class="spending-limit">₹ 5,000.00</div>
+                        <div class="spending-used" id="spendingUsed">used from ₹0</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="chart-section">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Overview</h3>
-                    <div class="yearly-container">
-                        <select id="dashboardPeriod" class="dropdown">
-    <option value="daily">Daily</option>
-    <option value="weekly">Weekly</option>
-    <option value="monthly">Monthly</option>
-    <option value="yearly" selected>Yearly</option>
-</select>
-                        <button
-    class="filter-btn"
-    id="overviewFilterBtn">
 
-    <i class="fas fa-filter"></i>
-    Filter
+            <div class="chart-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Overview</h3>
+                        <div class="yearly-container">
+                            <select id="dashboardPeriod" class="dropdown">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly" selected>Yearly</option>
+                            </select>
+                            <button class="filter-btn" id="overviewFilterBtn">
+                                <i class="fas fa-filter"></i>
+                                Filter
+                            </button>
+                        </div>
+                    </div>
 
-</button>
+                    <div class="chart-container">
+                        <canvas id="overviewChart"></canvas>
                     </div>
                 </div>
 
-                <div class="chart-container">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">All Expenses</div>
+                        <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>
+                    </div>
 
-                    <canvas id="overviewChart"></canvas>
+                    <div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 1rem">
+                        Spending breakdown by category
+                    </div>
 
+                    <div class="expenses-breakdown">
+                        <div class="total-expenses" id="totalExpenses">₹0</div>
+
+                        <div class="period-tabs">
+                            <span class="period-tab" data-expense-period="daily"> Daily </span>
+
+                            <span class="period-tab" data-expense-period="weekly"> Weekly </span>
+
+                            <span class="period-tab active" data-expense-period="monthly">
+                                Monthly
+                            </span>
+                        </div>
+
+                        <div class="period-amounts">
+                            <span>Daily</span>
+                            <span>Weekly</span>
+                            <span>Monthly</span>
+                        </div>
+
+                        <div class="period-values">
+                            <span>₹ 2,000</span>
+                            <span>₹ 8,000</span>
+                            <span>₹ 24,000</span>
+                        </div>
+
+                        <div class="pie-chart-container">
+                            <canvas id="expensePieChart"></canvas>
+                        </div>
+
+                        <ul class="expense-categories" id="expenseCategories"></ul>
+                    </div>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card transactions-section">
                 <div class="card-header">
-                    <div class="card-title">All Expenses</div>
-                    <button class="card-menu"><i class="fas fa-ellipsis-h"></i></button>               
+                    <h3 class="card-title">Recent Transactions</h3>
+                    <div class="filters">
+                        <input
+                            type="text"
+                            id="searchInput"
+                            class="search-input"
+                            placeholder="Search transactions..."
+                        />
+
+                        <select id="accountFilter" class="filter-btn">
+                            <option value="all">All Accounts</option>
+                        </select>
+
+                        <select id="typeFilter" class="filter-btn">
+                            <option value="all">All</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+
+                        <select id="sortTransactions" class="filter-btn">
+                            <option value="latest">Latest</option>
+                            <option value="oldest">Oldest</option>
+                            <option value="highest">Highest Amount</option>
+                            <option value="lowest">Lowest Amount</option>
+                        </select>
+
+                        <button id="clearFilters" class="filter-btn">
+                            <i class="fas fa-times"></i>
+                            Reset Filters
+                        </button>
+                    </div>
                 </div>
 
-                <div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 1rem;">Spending breakdown by category</div>
+                <table class="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Date<i class="fas fa-sort"></i></th>
+                            <th>Category<i class="fas fa-sort"></i></th>
+                            <th>Account<i class="fas fa-sort"></i></th>
+                            <th>Amount<i class="fas fa-sort"></i></th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
 
-                <div class="expenses-breakdown">
-                    <div class="total-expenses" id="totalExpenses">₹0</div>
-
-                    <div class="period-tabs">
-                        <span class="period-tab" data-expense-period="daily">
-    Daily
-</span>
-
-<span class="period-tab" data-expense-period="weekly">
-    Weekly
-</span>
-
-<span class="period-tab active" data-expense-period="monthly">
-    Monthly
-</span>
-                    </div>
-
-                    <div class="period-amounts">
-                        <span>Daily</span>
-                        <span>Weekly</span>
-                        <span>Monthly</span>
-                    </div>
-
-                    <div class="period-values">
-                        <span>₹ 2,000</span>
-                        <span>₹ 8,000</span>
-                        <span>₹ 24,000</span>
-                    </div>
-
-                    <div class="pie-chart-container">
-                        <canvas id="expensePieChart"></canvas>
-                    </div>
-
-                    <ul class="expense-categories" id="expenseCategories"></ul>
-                </div>
-            </div>  
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
-        
 
-        <div class="card transactions-section">
-            <div class="card-header">
-                <h3 class="card-title">Recent Transactions</h3>
-                <div class="filters">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search transactions...">
+        <!-- Income and Expense Buttons -->
 
-                    <select
-    id="accountFilter"
-    class="filter-btn">
+        <div class="add-buttons">
+            <button class="fab fab-transfer" id="addTransferBtn" title="Add Transfer">
+                <i class="fas fa-exchange-alt"></i>
+            </button>
+            <button class="fab fab-income" onclick="openIncomeModal()" title="Add Income">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="fab fab-expense" onclick="openExpenseModal()" title="Add Expense">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
 
-    <option value="all">
-        All Accounts
-    </option>
+        <!-- Income Modal -->
+        <div id="incomeModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Add Income</h2>
+                    <button class="close-btn" onclick="closeModal('incomeModal')">&times;</button>
+                </div>
 
-</select>
+                <div class="modal-body">
+                    <form id="incomeForm" autocomplete="off">
+                        <div class="form-group">
+                            <label class="form-label">Amount</label>
+                            <input
+                                type="number"
+                                class="form-input"
+                                id="incomeAmount"
+                                placeholder="Enter amount"
+                                required
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="incomeCategory" required>
+                                <option value="">Select category</option>
+                                <option value="salary">Salary</option>
+                                <option value="freelance">Freelance</option>
+                                <option value="business">Business</option>
+                                <option value="investment">Investment</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"> Account </label>
 
-                    <select id="typeFilter" class="filter-btn">
-                        <option value="all">All</option>
-                        <option value="income">Income</option>
-                        <option value="expense">Expense</option>
-                    </select>
+                            <select class="form-select" id="incomeAccount" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <input
+                                type="text"
+                                class="form-input"
+                                id="incomeDescription"
+                                placeholder="Enter description"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-input" id="incomeDate" required />
+                        </div>
+                    </form>
+                </div>
 
-                    <select id="sortTransactions" class="filter-btn">
-                        <option value="latest">Latest</option>
-                        <option value="oldest">Oldest</option>
-                        <option value="highest">Highest Amount</option>
-                        <option value="lowest">Lowest Amount</option>
-                    </select>    
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('incomeModal')">
+                        Cancel
+                    </button>
+                    <button class="btn btn-primary" onclick="addIncome()">Add Income</button>
+                </div>
+            </div>
+        </div>
 
-                    <button id="clearFilters" class="filter-btn">
-                        <i class="fas fa-times"></i>
-                        Reset Filters
+        <!-- Expense Modal -->
+        <div id="expenseModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Add Expense</h2>
+                    <button class="close-btn" onclick="closeModal('expenseModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="expenseForm">
+                        <div class="form-group">
+                            <label class="form-label">Amount</label>
+                            <input
+                                type="number"
+                                class="form-input"
+                                id="expenseAmount"
+                                placeholder="Enter amount"
+                                required
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="expenseCategory" required>
+                                <option value="">Select category</option>
+                                <option value="food">Food & Health</option>
+                                <option value="entertainment">Entertainment</option>
+                                <option value="shopping">Shopping</option>
+                                <option value="investment">Investment</option>
+                                <option value="transport">Transport</option>
+                                <option value="utilities">Utilities</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"> Account </label>
+
+                            <select class="form-select" id="expenseAccount" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <input
+                                type="text"
+                                class="form-input"
+                                id="expenseDescription"
+                                placeholder="Enter description"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-input" id="expenseDate" required />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('expenseModal')">
+                        Cancel
+                    </button>
+                    <button class="btn btn-primary" onclick="addExpense()">Add Expense</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budget Modal -->
+        <div id="budgetModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Edit Monthly Budget</h2>
+
+                    <button class="close-btn" onclick="closeModal('budgetModal')">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="budgetForm">
+                        <div class="form-group">
+                            <label class="form-label"> Monthly Budget </label>
+
+                            <input
+                                type="number"
+                                class="form-input"
+                                id="budgetInput"
+                                placeholder="Enter your budget"
+                                min="0"
+                                step="1"
+                                required
+                            />
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('budgetModal')">
+                        Cancel
+                    </button>
+
+                    <button class="btn btn-primary" onclick="saveBudget()">Save Budget</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Modal -->
+
+        <div id="accountModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="accountModalTitle">Add Account</h2>
+
+                    <button class="close-btn" onclick="closeModal('accountModal')">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="accountForm">
+                        <div class="form-group">
+                            <label class="form-label"> Account Name </label>
+
+                            <input
+                                type="text"
+                                class="form-input"
+                                id="accountName"
+                                placeholder="e.g. HDFC Bank"
+                                required
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label"> Account Type </label>
+
+                            <select class="form-select" id="accountType" required>
+                                <option value="">Select account type</option>
+
+                                <option value="cash">Cash</option>
+
+                                <option value="bank">Bank Account</option>
+
+                                <option value="upi">UPI</option>
+
+                                <option value="credit">Credit Card</option>
+
+                                <option value="wallet">Digital Wallet</option>
+
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label"> Opening Balance </label>
+
+                            <input
+                                type="number"
+                                class="form-input"
+                                id="accountOpeningBalance"
+                                placeholder="Enter opening balance"
+                                min="0"
+                                step="0.01"
+                                value="0"
+                            />
+                        </div>
+
+                        <div class="form-group account-toggle-group">
+                            <label class="form-label"> Included in Total Balance </label>
+
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="accountIncludeInTotal" checked />
+
+                                <span class="toggle-slider"></span>
+                            </label>
+
+                            <small class="toggle-description">
+                                Include this account's balance in the Home screen total.
+                            </small>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('accountModal')">
+                        Cancel
+                    </button>
+
+                    <button class="btn btn-primary" onclick="saveAccount()">Save Account</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transfer Modal -->
+
+        <div id="transferModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Transfer Money</h2>
+
+                    <button class="close-btn" onclick="closeModal('transferModal')">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="transferForm">
+                        <div class="form-group">
+                            <label class="form-label"> Amount </label>
+
+                            <input
+                                type="number"
+                                class="form-input"
+                                id="transferAmount"
+                                placeholder="Enter amount"
+                                min="1"
+                                step="0.01"
+                                required
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label"> From Account </label>
+
+                            <select class="form-select" id="transferFrom" required>
+                                <option value="">Select account</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label"> To Account </label>
+
+                            <select class="form-select" id="transferTo" required>
+                                <option value="">Select account</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label"> Description </label>
+
+                            <input
+                                type="text"
+                                class="form-input"
+                                id="transferDescription"
+                                placeholder="Optional"
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label"> Date </label>
+
+                            <input type="date" class="form-input" id="transferDate" required />
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('transferModal')">
+                        Cancel
+                    </button>
+
+                    <button class="btn btn-primary" onclick="saveTransfer()">Transfer Money</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="overviewFilterModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Filter Overview</h2>
+
+                    <button class="close-btn" onclick="closeModal('overviewFilterModal')">
+                        &times;
                     </button>
                 </div>
-            </div>
 
-            <table class="transactions-table">
-                <thead>
-                    <tr>
-                        <th>Date<i class="fas fa-sort"></i></th>
-                        <th>Category<i class="fas fa-sort"></i></th>
-                        <th>Amount<i class="fas fa-sort"></i></th>
-                        <th>Amount<i class="fas fa-sort"></i></th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Income and Expense Buttons -->
-
-    <div class="add-buttons">
-        <button class="fab fab-transfer" id="addTransferBtn" title="Add Transfer">
-        
-            <i class="fas fa-exchange-alt"></i>
-        
-        </button>
-        <button class="fab fab-income" onclick="openIncomeModal()" title="Add Income"><i class="fas fa-plus"></i></button>
-        <button class="fab fab-expense" onclick="openExpenseModal()" title="Add Expense"><i class="fas fa-minus"></i></button>
-    </div>
-
-    <!-- Income Modal -->
-    <div id="incomeModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Add Income</h2>
-                <button class="close-btn" onclick="closeModal('incomeModal')">&times;</button>
-            </div>
-
-            <div class="modal-body">
-                <form id="incomeForm" autocomplete="off">
+                <div class="modal-body">
                     <div class="form-group">
-                        <label class="form-label">Amount</label>
-                        <input type="number" class="form-input" id="incomeAmount" placeholder="Enter amount" required>
+                        <label class="form-label"> From Date </label>
+
+                        <input type="date" id="overviewFromDate" class="form-input" />
                     </div>
+
                     <div class="form-group">
-                        <label class="form-label">Category</label>
-                        <select class="form-select" id="incomeCategory" required>
-                            <option value="">Select category</option>
-                            <option value="salary">Salary</option>
-                            <option value="freelance">Freelance</option>
-                            <option value="business">Business</option>
-                            <option value="investment">Investment</option>
-                            <option value="other">Other</option>
+                        <label class="form-label"> To Date </label>
+
+                        <input type="date" id="overviewToDate" class="form-input" />
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('overviewFilterModal')">
+                        Cancel
+                    </button>
+
+                    <button class="btn btn-primary" id="applyOverviewFilter">Apply Filter</button>
+                    <button class="btn btn-secondary" id="clearOverviewFilter">Clear Filter</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Management Modal -->
+        <div class="modal" id="categoryModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="categoryModalTitle">Add Category</h2>
+
+                    <button class="close-btn" onclick="closeModal('categoryModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label"> Category Name </label>
+
+                        <input
+                            type="text"
+                            class="form-input"
+                            id="categoryName"
+                            placeholder="e.g. Food, Rent, Travel"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label"> Category Type </label>
+
+                        <select class="form-select" id="categoryType">
+                            <option value="expense">Expense</option>
+
+                            <option value="income">Income</option>
                         </select>
                     </div>
-                    <div class="form-group">
 
-    <label class="form-label">
-        Account
-    </label>
-
-    <select
-        class="form-select"
-        id="incomeAccount"
-        required>
-    </select>
-
-</div>
-                    <div class="form-group">
-                        <label class="form-label">Description</label>
-                        <input type="text" class="form-input" id="incomeDescription" placeholder="Enter description">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Date</label>
-                        <input type="date" class="form-input" id="incomeDate" required>
-                    </div>
-                </form>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('incomeModal')">Cancel</button>
-                <button class="btn btn-primary" onclick="addIncome()">Add Income</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Expense Modal -->
-    <div id="expenseModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Add Expense</h2>
-                <button class="close-btn" onclick="closeModal('expenseModal')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="expenseForm">
-                    <div class="form-group">
-                        <label class="form-label">Amount</label>
-                        <input type="number" class="form-input" id="expenseAmount" placeholder="Enter amount" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Category</label>
-                        <select class="form-select" id="expenseCategory" required>
-                            <option value="">Select category</option>
-                            <option value="food">Food & Health</option>
-                            <option value="entertainment">Entertainment</option>
-                            <option value="shopping">Shopping</option>
-                            <option value="investment">Investment</option>
-                            <option value="transport">Transport</option>
-                            <option value="utilities">Utilities</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-
-    <label class="form-label">
-        Account
-    </label>
-
-    <select
-        class="form-select"
-        id="expenseAccount"
-        required>
-    </select>
-
-</div>
-                    <div class="form-group">
-                        <label class="form-label">Description</label>
-                        <input type="text" class="form-input" id="expenseDescription" placeholder="Enter description">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Date</label>
-                        <input type="date" class="form-input" id="expenseDate" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('expenseModal')">Cancel</button>
-                <button class="btn btn-primary" onclick="addExpense()">Add Expense</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Budget Modal -->
-    <div id="budgetModal" class="modal">
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <h2 class="modal-title">
-                    Edit Monthly Budget
-                </h2>
-
-                <button
-                    class="close-btn"
-                    onclick="closeModal('budgetModal')">
-                    &times;
-                </button>
-
-            </div>
-
-            <div class="modal-body">
-
-                <form id="budgetForm">
-
-                    <div class="form-group">
-
-                        <label class="form-label">
-                            Monthly Budget
-                        </label>
+                    <div class="form-group" id="categoryBudgetGroup">
+                        <label class="form-label"> Monthly Budget </label>
 
                         <input
                             type="number"
                             class="form-input"
-                            id="budgetInput"
-                            placeholder="Enter your budget"
+                            id="categoryBudget"
+                            placeholder="Enter monthly budget"
                             min="0"
-                            step="1"
-                            required
-                        >
-
+                            step="0.01"
+                        />
                     </div>
+                </div>
 
-                </form>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('categoryModal')">
+                        Cancel
+                    </button>
 
+                    <button class="btn btn-primary" onclick="saveCategory()">Save Category</button>
+                </div>
             </div>
-
-            <div class="modal-footer">
-
-                <button
-                    class="btn btn-secondary"
-                    onclick="closeModal('budgetModal')">
-                    Cancel
-                </button>
-
-                <button
-                    class="btn btn-primary"
-                    onclick="saveBudget()">
-                    Save Budget
-                </button>
-
-            </div>
-
         </div>
 
-    </div>
-
-    <!-- Account Modal -->
-
-<div id="accountModal" class="modal">
-
-    <div class="modal-content">
-
-        <div class="modal-header">
-
-            <h2
-                class="modal-title"
-                id="accountModalTitle">
-                Add Account
-            </h2>
-
-            <button
-                class="close-btn"
-                onclick="closeModal('accountModal')">
-                &times;
-            </button>
-
-        </div>
-
-
-        <div class="modal-body">
-
-            <form id="accountForm">
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Account Name
-                    </label>
-
-                    <input
-                        type="text"
-                        class="form-input"
-                        id="accountName"
-                        placeholder="e.g. HDFC Bank"
-                        required>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Account Type
-                    </label>
-
-                    <select
-                        class="form-select"
-                        id="accountType"
-                        required>
-
-                        <option value="">
-                            Select account type
-                        </option>
-
-                        <option value="cash">
-                            Cash
-                        </option>
-
-                        <option value="bank">
-                            Bank Account
-                        </option>
-
-                        <option value="upi">
-                            UPI
-                        </option>
-
-                        <option value="credit">
-                            Credit Card
-                        </option>
-
-                        <option value="wallet">
-                            Digital Wallet
-                        </option>
-
-                        <option value="other">
-                            Other
-                        </option>
-
-                    </select>
-
-                </div>
-
-            </form>
-
-        </div>
-
-
-        <div class="modal-footer">
-
-            <button
-                class="btn btn-secondary"
-                onclick="closeModal('accountModal')">
-                Cancel
-            </button>
-
-            <button
-                class="btn btn-primary"
-                onclick="saveAccount()">
-                Save Account
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- Transfer Modal -->
-
-<div id="transferModal" class="modal">
-
-    <div class="modal-content">
-
-        <div class="modal-header">
-
-            <h2 class="modal-title">
-                Transfer Money
-            </h2>
-
-            <button
-                class="close-btn"
-                onclick="closeModal('transferModal')">
-
-                &times;
-
-            </button>
-
-        </div>
-
-
-        <div class="modal-body">
-
-            <form id="transferForm">
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Amount
-                    </label>
-
-                    <input
-                        type="number"
-                        class="form-input"
-                        id="transferAmount"
-                        placeholder="Enter amount"
-                        min="1"
-                        step="0.01"
-                        required>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        From Account
-                    </label>
-
-                    <select
-                        class="form-select"
-                        id="transferFrom"
-                        required>
-
-                        <option value="">
-                            Select account
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        To Account
-                    </label>
-
-                    <select
-                        class="form-select"
-                        id="transferTo"
-                        required>
-
-                        <option value="">
-                            Select account
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Description
-                    </label>
-
-                    <input
-                        type="text"
-                        class="form-input"
-                        id="transferDescription"
-                        placeholder="Optional">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Date
-                    </label>
-
-                    <input
-                        type="date"
-                        class="form-input"
-                        id="transferDate"
-                        required>
-
-                </div>
-
-            </form>
-
-        </div>
-
-
-        <div class="modal-footer">
-
-            <button
-                class="btn btn-secondary"
-                onclick="closeModal('transferModal')">
-
-                Cancel
-
-            </button>
-
-
-            <button
-                class="btn btn-primary"
-                onclick="saveTransfer()">
-
-                Transfer Money
-
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-<div id="overviewFilterModal" class="modal">
-
-    <div class="modal-content">
-
-        <div class="modal-header">
-
-            <h2 class="modal-title">
-                Filter Overview
-            </h2>
-
-            <button
-                class="close-btn"
-                onclick="closeModal('overviewFilterModal')">
-
-                &times;
-
-            </button>
-
-        </div>
-
-
-        <div class="modal-body">
-
-            <div class="form-group">
-
-                <label class="form-label">
-                    From Date
-                </label>
-
-                <input
-                    type="date"
-                    id="overviewFromDate"
-                    class="form-input">
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label class="form-label">
-                    To Date
-                </label>
-
-                <input
-                    type="date"
-                    id="overviewToDate"
-                    class="form-input">
-
-            </div>
-
-        </div>
-
-
-        <div class="modal-footer">
-
-            <button
-                class="btn btn-secondary"
-                onclick="closeModal('overviewFilterModal')">
-
-                Cancel
-
-            </button>
-
-            <button
-                class="btn btn-primary"
-                id="applyOverviewFilter">
-
-                Apply Filter
-
-            </button>
-            <button
-    class="btn btn-secondary"
-    id="clearOverviewFilter">
-
-    Clear Filter
-
-</button>
-
-        </div>
-
-    </div>
-
-</div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="script.js"></script>
-</body>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="script.js"></script>
+    </body>
 </html>
