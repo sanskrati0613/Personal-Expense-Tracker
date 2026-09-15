@@ -30,6 +30,29 @@
                     <i class="fas fa-download"></i>
                     Export
                 </div>
+                        <button
+                            id="backupDataBtn"
+                            class="filter-btn"
+                            type="button"
+                        >
+                            <i class="fas fa-download"></i>
+                            Backup Data
+                        </button>
+                        <button
+    id="restoreDataBtn"
+    class="filter-btn"
+    type="button"
+>
+    <i class="fas fa-upload"></i>
+    Restore Data
+</button>
+
+<input
+    type="file"
+    id="restoreDataInput"
+    accept=".json,application/json"
+    style="display: none;"
+>
             </div>
         </div>
 
@@ -171,8 +194,8 @@
                             <select id="dashboardPeriod" class="dropdown">
                                 <option value="daily">Daily</option>
                                 <option value="weekly">Weekly</option>
-                                <option value="monthly">Monthly</option>
-                                <option value="yearly" selected>Yearly</option>
+                                <option value="monthly" selected>Monthly</option>
+                                <option value="yearly">Yearly</option>
                             </select>
                             <button class="filter-btn" id="overviewFilterBtn">
                                 <i class="fas fa-filter"></i>
@@ -245,10 +268,15 @@
                             <option value="all">All Accounts</option>
                         </select>
 
+                        <select id="categoryFilter" class="filter-btn">
+                            <option value="all">All Categories</option>
+                        </select>
+
                         <select id="typeFilter" class="filter-btn">
                             <option value="all">All</option>
                             <option value="income">Income</option>
                             <option value="expense">Expense</option>
+                            <option value="transfer">Transfer</option>
                         </select>
 
                         <select id="sortTransactions" class="filter-btn">

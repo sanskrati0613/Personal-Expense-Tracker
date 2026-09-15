@@ -23,85 +23,85 @@
 // ==========================================================
 
 let accounts = [
-    {
-        id: "cash",
-        name: "Cash",
-        type: "cash",
-        openingBalance: 0,
-        balance: 0,
-        includeInTotal: true,
-        isArchived: false,
-    },
-    {
-        id: "bank",
-        name: "Bank Account",
-        type: "bank",
-        openingBalance: 0,
-        balance: 0,
-        includeInTotal: true,
-        isArchived: false,
-    },
-    {
-        id: "upi",
-        name: "UPI",
-        type: "upi",
-        openingBalance: 0,
-        balance: 0,
-        includeInTotal: true,
-        isArchived: false,
-    },
-    {
-        id: "credit",
-        name: "Credit Card",
-        type: "credit",
-        openingBalance: 0,
-        balance: 0,
-        includeInTotal: true,
-        isArchived: false,
-    },
+  {
+    id: "cash",
+    name: "Cash",
+    type: "cash",
+    openingBalance: 0,
+    balance: 0,
+    includeInTotal: true,
+    isArchived: false,
+  },
+  {
+    id: "bank",
+    name: "Bank Account",
+    type: "bank",
+    openingBalance: 0,
+    balance: 0,
+    includeInTotal: true,
+    isArchived: false,
+  },
+  {
+    id: "upi",
+    name: "UPI",
+    type: "upi",
+    openingBalance: 0,
+    balance: 0,
+    includeInTotal: true,
+    isArchived: false,
+  },
+  {
+    id: "credit",
+    name: "Credit Card",
+    type: "credit",
+    openingBalance: 0,
+    balance: 0,
+    includeInTotal: true,
+    isArchived: false,
+  },
 ];
 
 let categories = [
-    {
-        id: "food",
-        name: "Food",
-        type: "expense",
-        budget: 0,
-    },
-    {
-        id: "rent",
-        name: "Rent",
-        type: "expense",
-        budget: 0,
-    },
+  {
+    id: "food",
+    name: "Food",
+    type: "expense",
+    budget: 0,
+  },
+  {
+    id: "rent",
+    name: "Rent",
+    type: "expense",
+    budget: 0,
+  },
 ];
 
 // Initial sample transactions
 let transactions = [
-    {
-        id: 1,
-        date: "2025-01-14",
-        category: "Subscription",
-        amount: -440,
-        status: "Success",
-        type: "expense",
-    },
-    {
-        id: 2,
-        date: "2025-01-10",
-        category: "Transfer",
-        amount: -440,
-        status: "Success",
-        type: "expense",
-    },
-    {
-        id: 3,
-        date: "2025-01-08",
-        category: "Transfer",
-        amount: -440,
-        status: "Success",
-        type: "expense",
-    },
+  {
+    id: 1,
+    date: "2025-01-14",
+    category: "Subscription",
+    amount: -440,
+    status: "Success",
+    type: "expense",
+  },
+  {
+    id: 2,
+    date: "2025-01-10",
+    category: "Transfer",
+    amount: -440,
+    status: "Success",
+    type: "expense",
+  },
+  {
+    id: 3,
+    date: "2025-01-08",
+    category: "Transfer",
+    amount: -440,
+    status: "Success",
+    type: "expense",
+  },
 ];
 
 let editingTransactionId = null;
@@ -110,6 +110,7 @@ let editingCategoryId = null;
 
 let searchTerm = "";
 let currentFilter = "all";
+let currentCategory = "all";
 let currentSort = "latest";
 let overviewChart = null;
 let expensePieChart = null;
@@ -128,74 +129,83 @@ document.getElementById("datePickerInput").value = today;
 document.getElementById("incomeDate").value = today;
 document.getElementById("expenseDate").value = today;
 
+function escapeHTML(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 // ==========================================================
 // 2. LOCAL STORAGE (DATA PERSISTENCE)
 // ==========================================================
 
 function saveData() {
-    localStorage.setItem("transactions", JSON.stringify(transactions));
+  localStorage.setItem("transactions", JSON.stringify(transactions));
 
-    localStorage.setItem("monthlyBudget", monthlyBudget);
+  localStorage.setItem("monthlyBudget", monthlyBudget);
 
-    localStorage.setItem("accounts", JSON.stringify(accounts));
-    localStorage.setItem("categories", JSON.stringify(categories));
+  localStorage.setItem("accounts", JSON.stringify(accounts));
+  localStorage.setItem("categories", JSON.stringify(categories));
 }
 
 function loadData() {
-    const savedTransactions = localStorage.getItem("transactions");
+  const savedTransactions = localStorage.getItem("transactions");
 
-    if (savedTransactions) {
-        transactions = JSON.parse(savedTransactions);
-    }
+  if (savedTransactions) {
+    transactions = JSON.parse(savedTransactions);
+  }
+
+  const savedBudget = localStorage.getItem("monthlyBudget");
+
+  if (savedBudget) {
+    monthlyBudget = Number(savedBudget);
+  }
 
     // Upgrade older accounts
-    accounts.forEach((account) => {
-        if (account.openingBalance === undefined) {
-            account.openingBalance = 0;
-        }
-
-        if (account.includeInTotal === undefined) {
-            account.includeInTotal = true;
-        }
-
-        if (account.isArchived === undefined) {
-            account.isArchived = false;
-        }
-    });
-
-    const savedBudget = localStorage.getItem("monthlyBudget");
-
-    if (savedBudget) {
-        monthlyBudget = Number(savedBudget);
+  accounts.forEach((account) => {
+    if (account.openingBalance === undefined) {
+      account.openingBalance = 0;
     }
 
-    const savedAccounts = localStorage.getItem("accounts");
-
-    if (savedAccounts) {
-        accounts = JSON.parse(savedAccounts);
+    if (account.includeInTotal === undefined) {
+      account.includeInTotal = true;
     }
 
-    const savedCategories = localStorage.getItem("categories");
-
-    if (savedCategories) {
-        categories = JSON.parse(savedCategories);
+    if (account.isArchived === undefined) {
+      account.isArchived = false;
     }
+  });
 
-    if (!Array.isArray(categories)) {
-        categories = [];
+  const savedAccounts = localStorage.getItem("accounts");
+
+  if (savedAccounts) {
+    accounts = JSON.parse(savedAccounts);
+  }
+
+  const savedCategories = localStorage.getItem("categories");
+
+  if (savedCategories) {
+    categories = JSON.parse(savedCategories);
+  }
+
+  if (!Array.isArray(categories)) {
+    categories = [];
+  }
+
+  categories.forEach((category) => {
+    if (category.budget === undefined) {
+      category.budget = 0;
     }
+  });
 
-    categories.forEach((category) => {
-        if (category.budget === undefined) {
-            category.budget = 0;
-        }
-    });
-
-    transactions.forEach((transaction) => {
-        if (!transaction.account) {
-            transaction.account = "bank";
-        }
-    });
+  transactions.forEach((transaction) => {
+    if (!transaction.account) {
+      transaction.account = "bank";
+    }
+  });
 }
 
 // ==========================================================
@@ -203,8 +213,8 @@ function loadData() {
 // ==========================================================
 
 function showNotification(message, type = "success") {
-    const notification = document.createElement("div");
-    notification.style.cssText = `
+  const notification = document.createElement("div");
+  notification.style.cssText = `
                 position: fixed;
                 top: 2rem;
                 right: 2rem;
@@ -216,16 +226,16 @@ function showNotification(message, type = "success") {
                 z-index: 1001;
                 animation: slideInRight 0.3s ease;
             `;
-    notification.textContent = message;
+  notification.textContent = message;
 
-    document.body.appendChild(notification);
+  document.body.appendChild(notification);
 
+  setTimeout(() => {
+    notification.style.animation = "slideOutRight 0.3s ease";
     setTimeout(() => {
-        notification.style.animation = "slideOutRight 0.3s ease";
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
-    }, 3000);
+      document.body.removeChild(notification);
+    }, 300);
+  }, 3000);
 }
 
 // Notification slide-in/out animation styles, injected once at load time
@@ -244,65 +254,115 @@ style.textContent = `
 document.head.appendChild(style);
 
 function exportTransactions() {
-    if (transactions.length === 0) {
-        showNotification("No transactions to export.", "error");
+  if (transactions.length === 0) {
+    showNotification("No transactions to export.", "error");
 
-        return;
-    }
+    return;
+  }
 
-    const headers = ["Date", "Type", "Category", "Description", "Amount", "Status"];
+  const headers = [
+    "Date",
+    "Type",
+    "Category",
+    "Description",
+    "Amount",
+    "Status",
+  ];
 
-    const rows = transactions.map((transaction) => {
-        return [
-            transaction.date,
+  const rows = transactions.map((transaction) => {
+    return [
+      transaction.date,
 
-            transaction.type,
+      transaction.type,
 
-            transaction.category,
+      transaction.category,
 
-            transaction.description || "",
+      transaction.description || "",
 
-            Math.abs(transaction.amount).toFixed(2),
+      Math.abs(transaction.amount).toFixed(2),
 
-            transaction.status,
-        ];
-    });
+      transaction.status,
+    ];
+  });
 
-    const csvRows = [headers, ...rows];
+  const csvRows = [headers, ...rows];
 
-    const csvContent = csvRows
-        .map((row) => {
-            return row
-                .map((value) => {
-                    const text = String(value).replace(/"/g, '""');
+  const csvContent = csvRows
+    .map((row) => {
+      return row
+        .map((value) => {
+          const text = String(value).replace(/"/g, '""');
 
-                    return `"${text}"`;
-                })
-                .join(",");
+          return `"${text}"`;
         })
-        .join("\n");
+        .join(",");
+    })
+    .join("\n");
 
-    const blob = new Blob(["\uFEFF" + csvContent], {
-        type: "text/csv;charset=utf-8;",
-    });
+  const blob = new Blob(["\uFEFF" + csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
 
-    const url = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
+  const link = document.createElement("a");
 
-    link.href = url;
+  link.href = url;
 
-    link.download = "personal-finance-transactions.csv";
+  link.download = "personal-finance-transactions.csv";
 
-    document.body.appendChild(link);
+  document.body.appendChild(link);
 
-    link.click();
+  link.click();
 
-    document.body.removeChild(link);
+  document.body.removeChild(link);
 
-    URL.revokeObjectURL(url);
+  URL.revokeObjectURL(url);
 
-    showNotification("Transactions exported successfully!");
+  showNotification("Transactions exported successfully!");
+}
+
+function backupData() {
+  const backup = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    accounts: accounts,
+    categories: categories,
+    transactions: transactions,
+    monthlyBudget: monthlyBudget,
+  };
+
+  const data = JSON.stringify(backup, null, 2);
+
+  const blob = new Blob([data], {
+    type: "application/json",
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = `expense-tracker-backup-${
+    new Date().toISOString().split("T")[0]
+  }.json`;
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+
+  showNotification("Backup downloaded successfully!");
+}
+
+function restoreData() {
+  const fileInput = document.getElementById("restoreDataInput");
+
+  fileInput.value = "";
+  fileInput.click();
 }
 
 // ==========================================================
@@ -310,92 +370,93 @@ function exportTransactions() {
 // ==========================================================
 
 function getAccountName(accountId) {
-    const account = accounts.find((account) => account.id === accountId);
+  const account = accounts.find((account) => account.id === accountId);
 
-    return account ? account.name : "Unknown";
+  return account ? account.name : "Unknown";
 }
 
 function getAccountIcon(type) {
-    const icons = {
-        cash: "💵",
+  const icons = {
+    cash: "💵",
 
-        bank: "🏦",
+    bank: "🏦",
 
-        upi: "📱",
+    upi: "📱",
 
-        credit: "💳",
+    credit: "💳",
 
-        wallet: "👛",
+    wallet: "👛",
 
-        other: "💰",
-    };
+    other: "💰",
+  };
 
-    return icons[type] || "💰";
+  return icons[type] || "💰";
 }
 
 function formatAccountType(type) {
-    const names = {
-        cash: "Cash",
+  const names = {
+    cash: "Cash",
 
-        bank: "Bank Account",
+    bank: "Bank Account",
 
-        upi: "UPI",
+    upi: "UPI",
 
-        credit: "Credit Card",
+    credit: "Credit Card",
 
-        wallet: "Digital Wallet",
+    wallet: "Digital Wallet",
 
-        other: "Other",
-    };
+    other: "Other",
+  };
 
-    return names[type] || "Other";
+  return names[type] || "Other";
 }
 
 function calculateAccountBalances() {
-    accounts.forEach((account) => {
-        // Start from the saved opening balance
-        account.balance = Number(account.openingBalance || 0);
-    });
+  accounts.forEach((account) => {
+    // Start from the saved opening balance
+    account.balance = Number(account.openingBalance || 0);
+  });
 
-    transactions.forEach((transaction) => {
-        if (!transaction.account) {
-            return;
-        }
+  transactions.forEach((transaction) => {
+    if (!transaction.account) {
+      return;
+    }
 
-        const account = accounts.find((acc) => acc.id === transaction.account);
+    const account = accounts.find((acc) => acc.id === transaction.account);
 
-        if (!account) {
-            return;
-        }
+    if (!account) {
+      return;
+    }
 
-        account.balance += Number(transaction.amount || 0);
-    });
+    account.balance += Number(transaction.amount || 0);
+  });
 }
 
 function calculateIncludedTotalBalance() {
-    calculateAccountBalances();
+  calculateAccountBalances();
 
-    return accounts
-        .filter((account) => account.includeInTotal)
-        .reduce((total, account) => total + Number(account.balance || 0), 0);
+  return accounts
+    .filter((account) => account.includeInTotal)
+    .reduce((total, account) => total + Number(account.balance || 0), 0);
 }
 
 function renderAccounts() {
-    const container = document.getElementById("accountsList");
+  const container = document.getElementById("accountsList");
 
-    if (!container) return;
+  if (!container) return;
 
-    calculateAccountBalances();
+  calculateAccountBalances();
 
-    container.innerHTML = accounts
-        .map((account) => {
-            const balance = Number(account.balance || 0);
+  container.innerHTML = accounts
+    .map((account) => {
+      const balance = Number(account.balance || 0);
 
-            return `
+      return `
 
                 <div
                     class="account-item"
-                    data-account-id="${account.id}">
+                    data-account-id="${account.id}"
+                    onclick="viewAccountTransactions('${account.id}')">
 
                     <div class="account-info">
 
@@ -406,7 +467,7 @@ function renderAccounts() {
                         <div>
 
                             <div class="account-name">
-                                ${account.name}
+                                ${escapeHTML(account.name)}
                             </div>
 
                             <div class="account-type">
@@ -433,9 +494,9 @@ function renderAccounts() {
 
     <span
     class="account-status-badge ${
-        account.includeInTotal !== false ? "included" : "excluded"
+      account.includeInTotal !== false ? "included" : "excluded"
     }"
-    onclick="toggleAccountTotal('${account.id}')"
+    onclick="event.stopPropagation(); toggleAccountTotal('${account.id}')"
 >
     ${account.includeInTotal !== false ? "ON" : "OFF"}
 </span>
@@ -445,7 +506,7 @@ function renderAccounts() {
                         <div class="account-actions">
 
                             <button
-                                onclick="openAccountModal('${account.id}')"
+                               onclick="event.stopPropagation(); openAccountModal('${account.id}')"
                                 title="Edit">
 
                                 <i class="fas fa-pen"></i>
@@ -454,7 +515,7 @@ function renderAccounts() {
 
 
                             <button
-                                onclick="deleteAccount('${account.id}')"
+                                onclick="event.stopPropagation(); deleteAccount('${account.id}')"
                                 title="Delete">
 
                                 <i class="fas fa-trash"></i>
@@ -468,185 +529,229 @@ function renderAccounts() {
                 </div>
 
             `;
-        })
-        .join("");
+    })
+    .join("");
+}
+
+function viewAccountTransactions(accountId) {
+    const accountFilter =
+        document.getElementById("accountFilter");
+
+    if (!accountFilter) return;
+
+    accountFilter.value = accountId;
+    selectedAccount = accountId;
+
+    updateTransactionsTable();
+
+    const transactionsSection =
+        document.querySelector(".transactions-section");
+
+    if (transactionsSection) {
+        transactionsSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        });
+    }
 }
 
 function toggleAccountTotal(accountId) {
-    const account = accounts.find((acc) => acc.id === accountId);
+  const account = accounts.find((acc) => acc.id === accountId);
 
-    if (!account) return;
+  if (!account) return;
 
-    account.includeInTotal = account.includeInTotal === false;
+  account.includeInTotal = account.includeInTotal === false;
 
-    saveData();
+  saveData();
 
-    calculateAccountBalances();
+  calculateAccountBalances();
 
-    renderAccounts();
+  renderAccounts();
 
-    updateDashboard();
+  updateDashboard();
 
-    showNotification(
-        account.includeInTotal
-            ? `"${account.name}" included in total`
-            : `"${account.name}" excluded from total`,
-    );
+  showNotification(
+    account.includeInTotal
+      ? `"${account.name}" included in total`
+      : `"${account.name}" excluded from total`,
+  );
 }
 
 function saveAccount() {
-    const name = document.getElementById("accountName").value.trim();
+  const name = document.getElementById("accountName").value.trim();
 
-    const type = document.getElementById("accountType").value;
+  const type = document.getElementById("accountType").value;
 
-    const openingBalance =
-        parseFloat(document.getElementById("accountOpeningBalance").value) || 0;
+  const openingBalance =
+    parseFloat(document.getElementById("accountOpeningBalance").value) || 0;
 
-    const includeInTotal = document.getElementById("accountIncludeInTotal").checked;
+  const includeInTotal = document.getElementById(
+    "accountIncludeInTotal",
+  ).checked;
 
-    if (!name || !type) {
-        alert("Please fill in all required fields.");
+  if (!name || !type) {
+    alert("Please fill in all required fields.");
 
-        return;
+    return;
+  }
+
+  // Editing existing account
+
+  if (editingAccountId) {
+    const account = accounts.find((acc) => acc.id === editingAccountId);
+
+    if (account) {
+      account.name = name;
+
+      account.type = type;
+
+      account.openingBalance = openingBalance;
+
+      account.includeInTotal = includeInTotal;
     }
 
-    // Editing existing account
+    showNotification("Account updated successfully!");
+  }
 
-    if (editingAccountId) {
-        const account = accounts.find((acc) => acc.id === editingAccountId);
+  // Creating new account
+  else {
+    const newAccount = {
+      id: "account_" + Date.now(),
 
-        if (account) {
-            account.name = name;
+      name: name,
 
-            account.type = type;
+      type: type,
 
-            account.openingBalance = openingBalance;
+      openingBalance: openingBalance,
 
-            account.includeInTotal = includeInTotal;
-        }
+      balance: 0,
 
-        showNotification("Account updated successfully!");
-    }
+      includeInTotal: includeInTotal,
 
-    // Creating new account
-    else {
-        const newAccount = {
-            id: "account_" + Date.now(),
+      isArchived: false,
+    };
 
-            name: name,
+    accounts.push(newAccount);
 
-            type: type,
+    showNotification("Account added successfully!");
+  }
 
-            openingBalance: openingBalance,
+  saveData();
 
-            balance: 0,
+  populateAccountDropdowns();
 
-            includeInTotal: includeInTotal,
+  calculateAccountBalances();
+  populateAccountFilter();
 
-            isArchived: false,
-        };
+  renderAccounts();
 
-        accounts.push(newAccount);
+  updateDashboard();
 
-        showNotification("Account added successfully!");
-    }
+  closeModal("accountModal");
 
-    saveData();
-
-    populateAccountDropdowns();
-
-    calculateAccountBalances();
-    populateAccountFilter();
-
-    renderAccounts();
-
-    updateDashboard();
-
-    closeModal("accountModal");
-
-    editingAccountId = null;
+  editingAccountId = null;
 }
 
 function deleteAccount(accountId) {
-    const account = accounts.find((acc) => acc.id === accountId);
+  const account = accounts.find((acc) => acc.id === accountId);
 
-    if (!account) return;
+  if (!account) return;
 
-    const transactionCount = transactions.filter(
-        (transaction) => transaction.account === accountId,
-    ).length;
+  const transactionCount = transactions.filter(
+    (transaction) => transaction.account === accountId,
+  ).length;
 
-    if (transactionCount > 0) {
-        alert("This account has transactions and cannot be deleted yet.");
+  if (transactionCount > 0) {
+    alert("This account has transactions and cannot be deleted yet.");
 
-        return;
-    }
+    return;
+  }
 
-    const confirmed = confirm(`Delete "${account.name}"?`);
+  const confirmed = confirm(`Delete "${account.name}"?`);
 
-    if (!confirmed) return;
+  if (!confirmed) return;
 
-    accounts = accounts.filter((acc) => acc.id !== accountId);
-    if (selectedAccount === accountId) {
-        selectedAccount = "all";
-    }
+  accounts = accounts.filter((acc) => acc.id !== accountId);
+  if (selectedAccount === accountId) {
+    selectedAccount = "all";
+  }
 
-    saveData();
+  saveData();
 
-    populateAccountDropdowns();
-    populateAccountFilter();
+  populateAccountDropdowns();
+  populateAccountFilter();
 
-    renderAccounts();
+  renderAccounts();
 
-    showNotification("Account deleted successfully!");
+  showNotification("Account deleted successfully!");
 }
 
 function populateAccountDropdowns() {
-    const incomeSelect = document.getElementById("incomeAccount");
+  const incomeSelect = document.getElementById("incomeAccount");
 
-    const expenseSelect = document.getElementById("expenseAccount");
+  const expenseSelect = document.getElementById("expenseAccount");
 
-    const options = accounts
-        .map((account) => {
-            return `
+  const options = accounts
+    .map((account) => {
+      return `
                 <option value="${account.id}">
-                    ${account.name}
+                    ${escapeHTML(account.name)}
                 </option>
             `;
-        })
-        .join("");
+    })
+    .join("");
 
-    if (incomeSelect) {
-        incomeSelect.innerHTML = `<option value="">Select account</option>
+  if (incomeSelect) {
+    incomeSelect.innerHTML = `<option value="">Select account</option>
              ${options}`;
-    }
+  }
 
-    if (expenseSelect) {
-        expenseSelect.innerHTML = `<option value="">Select account</option>
+  if (expenseSelect) {
+    expenseSelect.innerHTML = `<option value="">Select account</option>
              ${options}`;
-    }
+  }
 }
 
 function populateAccountFilter() {
-    const select = document.getElementById("accountFilter");
+  const select = document.getElementById("accountFilter");
 
-    if (!select) return;
+  if (!select) return;
 
-    select.innerHTML = `
+  select.innerHTML = `
         <option value="all">
             All Accounts
         </option>
     `;
 
-    accounts.forEach((account) => {
-        const option = document.createElement("option");
+  accounts.forEach((account) => {
+    const option = document.createElement("option");
 
-        option.value = account.id;
+    option.value = account.id;
 
-        option.textContent = account.name;
+    option.textContent = account.name;
 
-        select.appendChild(option);
-    });
+    select.appendChild(option);
+  });
+  select.value = selectedAccount;
+}
+
+function populateCategoryFilter() {
+  const select = document.getElementById("categoryFilter");
+
+  if (!select) return;
+
+  select.innerHTML = `
+        <option value="all">All Categories</option>
+    `;
+
+  categories.forEach((category) => {
+    const option = document.createElement("option");
+
+    option.value = category.name;
+    option.textContent = category.name;
+
+    select.appendChild(option);
+  });
 }
 
 // ==========================================================
@@ -654,76 +759,79 @@ function populateAccountFilter() {
 // ==========================================================
 
 function getCategorySpent(categoryName) {
-    const selectedDate = document.getElementById("datePickerInput")?.value;
+  const selectedDate = document.getElementById("datePickerInput")?.value;
 
-    const now = selectedDate ? new Date(selectedDate + "T00:00:00") : new Date();
+  const now = selectedDate ? new Date(selectedDate + "T00:00:00") : new Date();
 
-    return transactions
-        .filter((transaction) => {
-            if (transaction.type !== "expense") {
-                return false;
-            }
+  return transactions
+    .filter((transaction) => {
+      if (transaction.type !== "expense") {
+        return false;
+      }
 
-            if (transaction.category.toLowerCase() !== categoryName.toLowerCase()) {
-                return false;
-            }
+      if (transaction.category.toLowerCase() !== categoryName.toLowerCase()) {
+        return false;
+      }
 
-            const [year, month, day] = transaction.date.split("-").map(Number);
+      const [year, month, day] = transaction.date.split("-").map(Number);
 
-            const transactionDate = new Date(year, month - 1, day);
+      const transactionDate = new Date(year, month - 1, day);
 
-            return (
-                transactionDate.getFullYear() === now.getFullYear() &&
-                transactionDate.getMonth() === now.getMonth()
-            );
-        })
-        .reduce((total, transaction) => total + Math.abs(Number(transaction.amount)), 0);
+      return (
+        transactionDate.getFullYear() === now.getFullYear() &&
+        transactionDate.getMonth() === now.getMonth()
+      );
+    })
+    .reduce(
+      (total, transaction) => total + Math.abs(Number(transaction.amount)),
+      0,
+    );
 }
 
 function renderCategories() {
-    const container = document.getElementById("categoriesManagementGrid");
+  const container = document.getElementById("categoriesManagementGrid");
 
-    if (!container) return;
+  if (!container) return;
 
-    container.innerHTML = "";
+  container.innerHTML = "";
 
-    if (!categories || categories.length === 0) {
-        container.innerHTML = `
+  if (!categories || categories.length === 0) {
+    container.innerHTML = `
             <div class="no-categories">
                 No categories added yet.
             </div>
         `;
 
-        return;
+    return;
+  }
+
+  categories.forEach((category) => {
+    const card = document.createElement("div");
+
+    card.className = "category-management-card";
+
+    const budget = Number(category.budget) || 0;
+
+    const spent = getCategorySpent(category.name);
+
+    const remaining = budget - spent;
+    let budgetStatus = "";
+
+    if (budget > 0) {
+      const percentage = (spent / budget) * 100;
+
+      if (percentage >= 100) {
+        budgetStatus = "Over budget";
+      } else if (percentage >= 80) {
+        budgetStatus = "Approaching budget";
+      }
     }
 
-    categories.forEach((category) => {
-        const card = document.createElement("div");
-
-        card.className = "category-management-card";
-
-        const budget = Number(category.budget) || 0;
-
-        const spent = getCategorySpent(category.name);
-
-        const remaining = budget - spent;
-        let budgetStatus = "";
-
-        if (budget > 0) {
-            const percentage = (spent / budget) * 100;
-
-            if (percentage >= 100) {
-                budgetStatus = "Over budget";
-            } else if (percentage >= 80) {
-                budgetStatus = "Approaching budget";
-            }
-        }
-
-        card.innerHTML = `
+    card.innerHTML = `
     <div class="category-management-card-header">
 
         <span class="category-management-card-name">
-            ${category.name}
+            ${escapeHTML(category.name)}
         </span>
 
     </div>
@@ -732,42 +840,48 @@ function renderCategories() {
     ${category.type === "expense" ? "Expense" : "Income"}
 </div>
 
-<div class="category-management-card-budget">
+${category.type === "expense" ? `
+    <div class="category-management-card-budget">
 
-    <div>
-        <span>Monthly Budget </span>
-        <strong>
-            ₹${budget.toLocaleString("en-IN")}
-        </strong>
+        <div>
+            <span>Monthly Budget</span>
+            <strong>
+                ₹${budget.toLocaleString("en-IN")}
+            </strong>
+        </div>
+
+        <div>
+            <span>Spent</span>
+            <strong>
+                ₹${spent.toLocaleString("en-IN")}
+            </strong>
+        </div>
+
+        <div>
+            <span>
+                ${remaining >= 0
+                    ? "Remaining"
+                    : "Over Budget"}
+            </span>
+
+            <strong class="${remaining >= 0
+                ? "budget-remaining"
+                : "budget-exceeded"}">
+
+                ₹${Math.abs(remaining).toLocaleString("en-IN")}
+
+            </strong>
+        </div>
+
     </div>
-
-    <div>
-        <span>Spent </span>
-        <strong>
-            ₹${spent.toLocaleString("en-IN")}
-        </strong>
-    </div>
-
-    <div>
-        <span>
-            ${remaining >= 0 ? "Remaining" : "Over Budget"}
-        </span>
-
-        <strong class="${remaining >= 0 ? "budget-remaining" : "budget-exceeded"}">
-
-            ₹${Math.abs(remaining).toLocaleString("en-IN")}
-
-        </strong>
-    </div>
-
-</div>
+` : ""}
 
 <div class="category-budget-progress">
 
     <div class="category-budget-progress-bar">
         <div
             class="category-budget-progress-fill ${
-                spent > budget && budget > 0 ? "budget-progress-exceeded" : ""
+              spent > budget && budget > 0 ? "budget-progress-exceeded" : ""
             }"
             style="width: ${Math.min(budget > 0 ? (spent / budget) * 100 : 0, 100)}%"
         ></div>
@@ -779,14 +893,14 @@ function renderCategories() {
 
 </div>
 ${
-    budgetStatus
-        ? `
+  budgetStatus
+    ? `
         <div class="category-budget-status">
             <i class="fas fa-triangle-exclamation"></i>
             ${budgetStatus}
         </div>
     `
-        : ""
+    : ""
 }
 
 <div class="category-management-card-actions">
@@ -810,231 +924,252 @@ ${
     </div>
 `;
 
-        container.appendChild(card);
-    });
+    container.appendChild(card);
+  });
 }
 
 function saveCategory() {
-    const name = document.getElementById("categoryName").value.trim();
+  const name = document.getElementById("categoryName").value.trim();
 
-    const type = document.getElementById("categoryType").value;
+  const type = document.getElementById("categoryType").value;
 
-    const budget = Number(document.getElementById("categoryBudget").value) || 0;
+  const budget = Number(document.getElementById("categoryBudget").value) || 0;
 
-    if (!name) {
-        showNotification("Please enter a category name.");
+  if (!name) {
+    showNotification("Please enter a category name.");
 
-        return;
-    }
+    return;
+  }
 
-    const categoryExists = categories.some(
-        (category) =>
-            category.id !== editingCategoryId &&
-            category.name.toLowerCase() === name.toLowerCase(),
-    );
+  const categoryExists = categories.some(
+    (category) =>
+      category.id !== editingCategoryId &&
+      category.name.toLowerCase() === name.toLowerCase(),
+  );
 
-    if (categoryExists) {
-        showNotification("This category already exists.");
+  if (categoryExists) {
+    showNotification("This category already exists.");
 
-        return;
-    }
+    return;
+  }
 
-    /* =========================
+  /* =========================
        EDIT EXISTING CATEGORY
        ========================= */
 
-    if (editingCategoryId) {
-        const category = categories.find((category) => category.id === editingCategoryId);
+  if (editingCategoryId) {
+    const category = categories.find(
+      (category) => category.id === editingCategoryId,
+    );
 
-        if (category) {
-            category.name = name;
+    if (category) {
+    const oldCategoryName = category.name;
 
-            category.type = type;
+    category.name = name;
 
-            category.budget = type === "expense" ? budget : 0;
-        }
+    category.type = type;
 
-        showNotification("Category updated successfully!");
+    category.budget = type === "expense" ? budget : 0;
+
+    if (oldCategoryName !== name) {
+        transactions.forEach((transaction) => {
+            if (transaction.category === oldCategoryName) {
+                transaction.category = name;
+            }
+        });
     }
+}
 
-    /* =========================
+    showNotification("Category updated successfully!");
+  } else {
+
+  /* =========================
        ADD NEW CATEGORY
        ========================= */
-    else {
-        const newCategory = {
-            id: "category_" + Date.now(),
-            name: name,
-            type: type,
-            budget: type === "expense" ? budget : 0,
-        };
+    const newCategory = {
+      id: "category_" + Date.now(),
+      name: name,
+      type: type,
+      budget: type === "expense" ? budget : 0,
+    };
 
-        categories.push(newCategory);
+    categories.push(newCategory);
 
-        showNotification("Category added successfully!");
-    }
+    showNotification("Category added successfully!");
+  }
 
-    saveData();
+saveData();
 
-    renderCategories();
+renderCategories();
 
-    populateCategoryDropdowns();
+populateCategoryDropdowns();
 
-    document.getElementById("categoryName").value = "";
+populateCategoryFilter();
 
-    document.getElementById("categoryType").value = "expense";
+updateTransactionsTable();
 
-    document.getElementById("categoryBudget").value = 0;
+updateDashboard();
 
-    editingCategoryId = null;
+  document.getElementById("categoryName").value = "";
 
-    document.getElementById("categoryModalTitle").textContent = "Add Category";
+  document.getElementById("categoryType").value = "expense";
 
-    closeModal("categoryModal");
+  document.getElementById("categoryBudget").value = 0;
+
+  editingCategoryId = null;
+
+  document.getElementById("categoryModalTitle").textContent = "Add Category";
+
+  closeModal("categoryModal");
 }
 
 function editCategory(categoryId) {
-    const category = categories.find((category) => category.id === categoryId);
+  const category = categories.find((category) => category.id === categoryId);
 
-    if (!category) {
-        return;
-    }
+  if (!category) {
+    return;
+  }
 
-    editingCategoryId = categoryId;
+  editingCategoryId = categoryId;
 
-    document.getElementById("categoryModalTitle").textContent = "Edit Category";
+  document.getElementById("categoryModalTitle").textContent = "Edit Category";
 
-    document.getElementById("categoryName").value = category.name;
+  document.getElementById("categoryName").value = category.name;
 
-    document.getElementById("categoryType").value = category.type;
-    updateCategoryBudgetVisibility();
+  document.getElementById("categoryType").value = category.type;
+  updateCategoryBudgetVisibility();
 
-    document.getElementById("categoryBudget").value = category.budget || 0;
+  document.getElementById("categoryBudget").value = category.budget || 0;
 
-    const modal = document.getElementById("categoryModal");
+  const modal = document.getElementById("categoryModal");
 
-    modal.style.display = "block";
+  modal.style.display = "block";
 
-    document.body.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
 }
 
 function deleteCategory(categoryId) {
-    const category = categories.find((category) => category.id === categoryId);
+  const category = categories.find((category) => category.id === categoryId);
 
-    if (!category) {
-        return;
-    }
+  if (!category) {
+    return;
+  }
 
-    const categoryUsed = transactions.some(
-        (transaction) => transaction.category === category.name,
+  const categoryUsed = transactions.some(
+    (transaction) => transaction.category === category.name,
+  );
+
+  if (categoryUsed) {
+    showNotification(
+      `Cannot delete "${category.name}" because it is being used by existing transactions.`,
     );
 
-    if (categoryUsed) {
-        showNotification(
-            `Cannot delete "${category.name}" because it is being used by existing transactions.`,
-        );
+    return;
+  }
 
-        return;
-    }
+  const confirmed = confirm(
+    `Are you sure you want to delete "${category.name}"?`,
+  );
 
-    const confirmed = confirm(`Are you sure you want to delete "${category.name}"?`);
+  if (!confirmed) {
+    return;
+  }
 
-    if (!confirmed) {
-        return;
-    }
+  categories = categories.filter((category) => category.id !== categoryId);
 
-    categories = categories.filter((category) => category.id !== categoryId);
+  saveData();
 
-    saveData();
+  renderCategories();
 
-    renderCategories();
+  populateCategoryDropdowns();
 
-    populateCategoryDropdowns();
+  populateCategoryFilter();
 
-    showNotification("Category deleted successfully!");
+  showNotification("Category deleted successfully!");
 }
 
 function populateCategoryDropdowns() {
-    const expenseSelect = document.getElementById("expenseCategory");
+  const expenseSelect = document.getElementById("expenseCategory");
 
-    const incomeSelect = document.getElementById("incomeCategory");
+  const incomeSelect = document.getElementById("incomeCategory");
 
-    if (!expenseSelect && !incomeSelect) {
-        return;
-    }
+  if (!expenseSelect && !incomeSelect) {
+    return;
+  }
 
-    // =========================
-    // EXPENSE CATEGORIES
-    // =========================
+  // =========================
+  // EXPENSE CATEGORIES
+  // =========================
 
-    if (expenseSelect) {
-        const expenseCategories = categories.filter(
-            (category) => category.type === "expense",
-        );
+  if (expenseSelect) {
+    const expenseCategories = categories.filter(
+      (category) => category.type === "expense",
+    );
 
-        expenseSelect.innerHTML = `
+    expenseSelect.innerHTML = `
             <option value="">
                 Select category
             </option>
 
             ${expenseCategories
-                .map(
-                    (category) => `
+              .map(
+                (category) => `
                     <option value="${category.name}">
-                        ${category.name}
+                        ${escapeHTML(category.name)}
                     </option>
                 `,
-                )
-                .join("")}
+              )
+              .join("")}
         `;
-    }
+  }
 
-    // =========================
-    // INCOME CATEGORIES
-    // =========================
+  // =========================
+  // INCOME CATEGORIES
+  // =========================
 
-    if (incomeSelect) {
-        const incomeCategories = categories.filter(
-            (category) => category.type === "income",
-        );
+  if (incomeSelect) {
+    const incomeCategories = categories.filter(
+      (category) => category.type === "income",
+    );
 
-        incomeSelect.innerHTML = `
+    incomeSelect.innerHTML = `
             <option value="">
                 Select category
             </option>
 
             ${incomeCategories
-                .map(
-                    (category) => `
+              .map(
+                (category) => `
                     <option value="${category.name}">
-                        ${category.name}
+                        ${escapeHTML(category.name)}
                     </option>
                 `,
-                )
-                .join("")}
+              )
+              .join("")}
         `;
-    }
+  }
 }
 
 function saveBudget() {
-    const budgetInput = document.getElementById("budgetInput");
+  const budgetInput = document.getElementById("budgetInput");
 
-    const newBudget = parseFloat(budgetInput.value);
+  const newBudget = parseFloat(budgetInput.value);
 
-    if (!newBudget || newBudget <= 0) {
-        alert("Please enter a valid budget.");
+  if (!newBudget || newBudget <= 0) {
+    alert("Please enter a valid budget.");
 
-        return;
-    }
+    return;
+  }
 
-    monthlyBudget = newBudget;
+  monthlyBudget = newBudget;
 
-    saveData();
+  saveData();
 
-    updateDashboard();
+  updateDashboard();
 
-    closeModal("budgetModal");
+  closeModal("budgetModal");
 
-    showNotification("Budget updated successfully!");
+  showNotification("Budget updated successfully!");
 }
 
 // ==========================================================
@@ -1043,54 +1178,31 @@ function saveBudget() {
 
 // Add income function
 function addIncome() {
-    const amount = parseFloat(document.getElementById("incomeAmount").value);
-    const category = document.getElementById("incomeCategory").value;
-    const description = document.getElementById("incomeDescription").value;
-    const date = document.getElementById("incomeDate").value;
-    const account = document.getElementById("incomeAccount").value;
+  const amount = parseFloat(document.getElementById("incomeAmount").value);
+  const category = document.getElementById("incomeCategory").value;
+  const description = document.getElementById("incomeDescription").value;
+  const date = document.getElementById("incomeDate").value;
+  const account = document.getElementById("incomeAccount").value;
 
-    if (editingTransactionId) {
-        const oldTransaction = transactions.find((t) => t.id === editingTransactionId);
+  if (!amount || amount <= 0 || !category || !account || !date) {
+  alert("Please enter a valid amount and fill in all required fields");
+  return;
+}
 
-        oldTransaction.amount = amount;
-        oldTransaction.category = category.charAt(0).toUpperCase() + category.slice(1);
-        oldTransaction.description = description;
-        oldTransaction.date = date;
+  if (editingTransactionId) {
+    const oldTransaction = transactions.find(
+      (t) => t.id === editingTransactionId,
+    );
 
-        editingTransactionId = null;
+    oldTransaction.amount = amount;
+    oldTransaction.category =
+      category.charAt(0).toUpperCase() + category.slice(1);
+    oldTransaction.account = account;
+    oldTransaction.description = description;
+    oldTransaction.date = date;
 
-        updateDashboard();
-        updateTransactionsTable();
-        renderCategories();
-        saveData();
+    editingTransactionId = null;
 
-        closeModal("incomeModal");
-
-        showNotification("Transaction updated!");
-
-        return;
-    }
-
-    if (!amount || !category || !account || !date) {
-        alert("Please fill in all required fields");
-        return;
-    }
-
-    // Add to transactions
-    const newTransaction = {
-        id: Date.now(),
-        date: date,
-        category: category.charAt(0).toUpperCase() + category.slice(1),
-        account: account,
-        amount: amount,
-        status: "Success",
-        type: "income",
-        description: description,
-    };
-
-    transactions.unshift(newTransaction);
-
-    // Update monthly income
     updateDashboard();
     updateTransactionsTable();
     renderCategories();
@@ -1098,60 +1210,64 @@ function addIncome() {
 
     closeModal("incomeModal");
 
-    // Show success message
-    showNotification("Income added successfully!", "success");
+    showNotification("Transaction updated!");
+
+    return;
+  }
+
+  // Add to transactions
+  const newTransaction = {
+    id: Date.now(),
+    date: date,
+    category: category.charAt(0).toUpperCase() + category.slice(1),
+    account: account,
+    amount: amount,
+    status: "Success",
+    type: "income",
+    description: description,
+  };
+
+  transactions.unshift(newTransaction);
+
+  // Update monthly income
+  updateDashboard();
+  updateTransactionsTable();
+  renderCategories();
+  saveData();
+
+  closeModal("incomeModal");
+
+  // Show success message
+  showNotification("Income added successfully!", "success");
 }
 
 // Add expense function
 function addExpense() {
-    const amount = parseFloat(document.getElementById("expenseAmount").value);
-    const category = document.getElementById("expenseCategory").value;
-    const description = document.getElementById("expenseDescription").value;
-    const date = document.getElementById("expenseDate").value;
-    const account = document.getElementById("expenseAccount").value;
+  const amount = parseFloat(document.getElementById("expenseAmount").value);
+  const category = document.getElementById("expenseCategory").value;
+  const description = document.getElementById("expenseDescription").value;
+  const date = document.getElementById("expenseDate").value;
+  const account = document.getElementById("expenseAccount").value;
 
-    if (editingTransactionId) {
-        const oldTransaction = transactions.find((t) => t.id === editingTransactionId);
+  if (!amount || amount <= 0 || !category || !account || !date) {
+  alert("Please enter a valid amount and fill in all required fields");
+  return;
+}
 
-        oldTransaction.amount = -amount;
-        oldTransaction.category = category.charAt(0).toUpperCase() + category.slice(1);
-        oldTransaction.description = description;
-        oldTransaction.date = date;
+  if (editingTransactionId) {
+    const oldTransaction = transactions.find(
+      (t) => t.id === editingTransactionId,
+    );
 
-        editingTransactionId = null;
+    oldTransaction.amount = -amount;
+    oldTransaction.category =
+      category.charAt(0).toUpperCase() + category.slice(1);
+    oldTransaction.account = account;
+    oldTransaction.description = description;
+    oldTransaction.date = date;
 
-        updateDashboard();
-        updateTransactionsTable();
-        renderCategories();
-        saveData();
+    editingTransactionId = null;
 
-        closeModal("expenseModal");
-
-        showNotification("Transaction updated!");
-
-        return;
-    }
-
-    if (!amount || !category || !account || !date) {
-        alert("Please fill in all required fields");
-        return;
-    }
-
-    // Add to transactions
-    const newTransaction = {
-        id: Date.now(),
-        date: date,
-        category: category.charAt(0).toUpperCase() + category.slice(1),
-        account: account,
-        amount: -amount,
-        status: "Success",
-        type: "expense",
-        description: description,
-    };
-
-    transactions.unshift(newTransaction);
-
-    // Update monthly expenses
     updateDashboard();
     updateTransactionsTable();
     renderCategories();
@@ -1159,12 +1275,41 @@ function addExpense() {
 
     closeModal("expenseModal");
 
-    // Show success message
-    showNotification("Expense added successfully!", "success");
+    showNotification("Transaction updated!");
+
+    return;
+  }
+
+  // Add to transactions
+  const newTransaction = {
+    id: Date.now(),
+    date: date,
+    category: category.charAt(0).toUpperCase() + category.slice(1),
+    account: account,
+    amount: -amount,
+    status: "Success",
+    type: "expense",
+    description: description,
+  };
+
+  transactions.unshift(newTransaction);
+
+  // Update monthly expenses
+  updateDashboard();
+  updateTransactionsTable();
+  renderCategories();
+  saveData();
+
+  closeModal("expenseModal");
+
+  // Show success message
+  showNotification("Expense added successfully!", "success");
 }
 
 function deleteTransaction(id) {
-    const confirmDelete = confirm("Are you sure you want to delete this transaction?");
+    const confirmDelete = confirm(
+        "Are you sure you want to delete this transaction?",
+    );
 
     if (!confirmDelete) return;
 
@@ -1172,7 +1317,15 @@ function deleteTransaction(id) {
 
     if (!transaction) return;
 
-    transactions = transactions.filter((t) => t.id !== id);
+    if (transaction.type === "transfer" && transaction.transferId) {
+        transactions = transactions.filter(
+            (t) => t.transferId !== transaction.transferId,
+        );
+    } else {
+        transactions = transactions.filter((t) => t.id !== id);
+    }
+
+    calculateAccountBalances();
 
     updateDashboard();
     updateTransactionsTable();
@@ -1187,31 +1340,43 @@ function editTransaction(id) {
 
     if (!transaction) return;
 
+    if (transaction.type === "transfer") {
+        showNotification(
+            "Transfers cannot be edited here. Delete the transfer and create a new one.",
+            "error",
+        );
+
+        return;
+    }
+
     editingTransactionId = id;
 
-    if (transaction.type === "income") {
-        document.getElementById("incomeAmount").value = transaction.amount;
+  if (transaction.type === "income") {
+    document.getElementById("incomeAmount").value = transaction.amount;
 
-        document.getElementById("incomeCategory").value = transaction.category;
+    document.getElementById("incomeCategory").value = transaction.category;
+    document.getElementById("incomeAccount").value = transaction.account;
 
-        document.getElementById("incomeDescription").value =
-            transaction.description || "";
+    document.getElementById("incomeDescription").value =
+      transaction.description || "";
 
-        document.getElementById("incomeDate").value = transaction.date;
+    document.getElementById("incomeDate").value = transaction.date;
 
-        openIncomeModal();
-    } else {
-        document.getElementById("expenseAmount").value = Math.abs(transaction.amount);
+    openIncomeModal();
+  } else {
+    document.getElementById("expenseAmount").value = Math.abs(
+      transaction.amount,
+    );
 
-        document.getElementById("expenseCategory").value = transaction.category;
+    document.getElementById("expenseCategory").value = transaction.category;
+    document.getElementById("expenseAccount").value = transaction.account;
+    document.getElementById("expenseDescription").value =
+      transaction.description || "";
 
-        document.getElementById("expenseDescription").value =
-            transaction.description || "";
+    document.getElementById("expenseDate").value = transaction.date;
 
-        document.getElementById("expenseDate").value = transaction.date;
-
-        openExpenseModal();
-    }
+    openExpenseModal();
+  }
 }
 
 // ==========================================================
@@ -1219,135 +1384,137 @@ function editTransaction(id) {
 // ==========================================================
 
 function populateTransferAccounts() {
-    const fromSelect = document.getElementById("transferFrom");
+  const fromSelect = document.getElementById("transferFrom");
 
-    const toSelect = document.getElementById("transferTo");
+  const toSelect = document.getElementById("transferTo");
 
-    const options = accounts
-        .map((account) => {
-            return `
+  const options = accounts
+    .map((account) => {
+      return `
                     <option value="${account.id}">
                         ${account.name}
                     </option>
                 `;
-        })
-        .join("");
+    })
+    .join("");
 
-    fromSelect.innerHTML = `<option value="">
+  fromSelect.innerHTML = `<option value="">
             Select account
         </option>
         ${options}`;
 
-    toSelect.innerHTML = `<option value="">
+  toSelect.innerHTML = `<option value="">
             Select account
         </option>
         ${options}`;
 }
 
 function saveTransfer() {
-    const amount = parseFloat(document.getElementById("transferAmount").value);
+  const amount = parseFloat(document.getElementById("transferAmount").value);
 
-    const fromAccount = document.getElementById("transferFrom").value;
+  const fromAccount = document.getElementById("transferFrom").value;
 
-    const toAccount = document.getElementById("transferTo").value;
+  const toAccount = document.getElementById("transferTo").value;
 
-    const description = document.getElementById("transferDescription").value;
+  const description = document.getElementById("transferDescription").value;
 
-    const date = document.getElementById("transferDate").value;
+  const date = document.getElementById("transferDate").value;
 
-    if (!amount || amount <= 0 || !fromAccount || !toAccount || !date) {
-        showNotification("Please fill in all required fields.", "error");
+  if (!amount || amount <= 0 || !fromAccount || !toAccount || !date) {
+    showNotification("Please fill in all required fields.", "error");
 
-        return;
-    }
+    return;
+  }
 
-    if (fromAccount === toAccount) {
-        showNotification("From and To accounts must be different.", "error");
+  if (fromAccount === toAccount) {
+    showNotification("From and To accounts must be different.", "error");
 
-        return;
-    }
+    return;
+  }
 
-    const sourceAccount = accounts.find((account) => account.id === fromAccount);
+  const sourceAccount = accounts.find((account) => account.id === fromAccount);
 
-    if (!sourceAccount) {
-        showNotification("Source account not found.", "error");
+  if (!sourceAccount) {
+    showNotification("Source account not found.", "error");
 
-        return;
-    }
+    return;
+  }
 
-    calculateAccountBalances();
+  calculateAccountBalances();
 
-    if (sourceAccount.balance < amount) {
-        showNotification("Insufficient balance in the source account.", "error");
+  if (sourceAccount.balance < amount) {
+    showNotification("Insufficient balance in the source account.", "error");
 
-        return;
-    }
+    return;
+  }
 
-    const transferId = Date.now();
+  const transferId = Date.now();
 
-    const transferOut = {
-        id: transferId,
+  const transferOut = {
+    id: transferId,
 
-        date: date,
+    date: date,
 
-        category: "Transfer",
+    category: "Transfer",
 
-        account: fromAccount,
+    account: fromAccount,
 
-        amount: -amount,
+    amount: -amount,
 
-        status: "Success",
+    status: "Success",
 
-        type: "transfer",
+    type: "transfer",
 
-        description: description || `Transfer to ${getAccountName(toAccount)}`,
+    description: description || `Transfer to ${getAccountName(toAccount)}`,
 
-        transferId: transferId,
+    transferId: transferId,
 
-        transferDirection: "out",
+    transferDirection: "out",
 
-        transferAccount: toAccount,
-    };
+    transferAccount: toAccount,
+  };
 
-    const transferIn = {
-        id: transferId + 1,
+  const transferIn = {
+    id: transferId + 1,
 
-        date: date,
+    date: date,
 
-        category: "Transfer",
+    category: "Transfer",
 
-        account: toAccount,
+    account: toAccount,
 
-        amount: amount,
+    amount: amount,
 
-        status: "Success",
+    status: "Success",
 
-        type: "transfer",
+    type: "transfer",
 
-        description: description || `Transfer from ${getAccountName(fromAccount)}`,
+    description: description || `Transfer from ${getAccountName(fromAccount)}`,
 
-        transferId: transferId,
+    transferId: transferId,
 
-        transferDirection: "in",
+    transferDirection: "in",
 
-        transferAccount: fromAccount,
-    };
+    transferAccount: fromAccount,
+  };
 
-    transactions.push(transferOut, transferIn);
+  transactions.push(transferOut, transferIn);
 
-    saveData();
+  saveData();
 
-    calculateAccountBalances();
+  calculateAccountBalances();
 
-    updateDashboard();
+  updateDashboard();
 
-    updateTransactionsTable();
+  updateTransactionsTable();
 
-    closeModal("transferModal");
+  closeModal("transferModal");
 
-    document.getElementById("transferForm").reset();
+  document.getElementById("transferForm").reset();
 
-    showNotification(`₹${amount.toLocaleString("en-IN")} transferred successfully!`);
+  showNotification(
+    `₹${amount.toLocaleString("en-IN")} transferred successfully!`,
+  );
 }
 
 // ==========================================================
@@ -1356,197 +1523,190 @@ function saveTransfer() {
 
 // Get transactions for the selected dashboard period
 function getDashboardTransactions() {
-    const period = document.getElementById("dashboardPeriod").value;
+  const period = document.getElementById("dashboardPeriod").value;
 
-    const selectedDate = document.getElementById("datePickerInput").value;
+  const selectedDate = document.getElementById("datePickerInput").value;
 
-    const now = selectedDate ? new Date(selectedDate + "T00:00:00") : new Date();
+  const now = selectedDate ? new Date(selectedDate + "T00:00:00") : new Date();
 
-    // First filter transactions by selected period
-    let periodTransactions = transactions.filter((transaction) => {
-        const [year, month, day] = transaction.date.split("-").map(Number);
+  // First filter transactions by selected period
+  let periodTransactions = transactions.filter((transaction) => {
+    const [year, month, day] = transaction.date.split("-").map(Number);
 
-        const transactionDate = new Date(year, month - 1, day);
+    const transactionDate = new Date(year, month - 1, day);
 
-        // Daily
-        if (period === "daily") {
-            return (
-                transactionDate.getFullYear() === now.getFullYear() &&
-                transactionDate.getMonth() === now.getMonth() &&
-                transactionDate.getDate() === now.getDate()
-            );
-        }
+    // Daily
+    if (period === "daily") {
+      return (
+        transactionDate.getFullYear() === now.getFullYear() &&
+        transactionDate.getMonth() === now.getMonth() &&
+        transactionDate.getDate() === now.getDate()
+      );
+    }
 
-        // Weekly
-        if (period === "weekly") {
-            const startOfWeek = new Date(now);
+    // Weekly
+    if (period === "weekly") {
+      const startOfWeek = new Date(now);
 
-            const dayOfWeek = now.getDay();
+      const dayOfWeek = now.getDay();
 
-            startOfWeek.setDate(now.getDate() - dayOfWeek);
+      startOfWeek.setDate(now.getDate() - dayOfWeek);
 
-            startOfWeek.setHours(0, 0, 0, 0);
+      startOfWeek.setHours(0, 0, 0, 0);
 
-            const endOfWeek = new Date(startOfWeek);
+      const endOfWeek = new Date(startOfWeek);
 
-            endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
 
-            endOfWeek.setHours(23, 59, 59, 999);
+      endOfWeek.setHours(23, 59, 59, 999);
 
-            return transactionDate >= startOfWeek && transactionDate <= endOfWeek;
-        }
+      return transactionDate >= startOfWeek && transactionDate <= endOfWeek;
+    }
 
-        // Monthly
-        if (period === "monthly") {
-            return (
-                transactionDate.getFullYear() === now.getFullYear() &&
-                transactionDate.getMonth() === now.getMonth()
-            );
-        }
+    // Monthly
+    if (period === "monthly") {
+      return (
+        transactionDate.getFullYear() === now.getFullYear() &&
+        transactionDate.getMonth() === now.getMonth()
+      );
+    }
 
-        // Yearly
-        if (period === "yearly") {
-            return transactionDate.getFullYear() === now.getFullYear();
-        }
+    // Yearly
+    if (period === "yearly") {
+      return transactionDate.getFullYear() === now.getFullYear();
+    }
 
-        return true;
+    return true;
+  });
+
+  // Filter by custom date range
+  if (overviewFromDate || overviewToDate) {
+    periodTransactions = periodTransactions.filter((transaction) => {
+      if (overviewFromDate && transaction.date < overviewFromDate) {
+        return false;
+      }
+
+      if (overviewToDate && transaction.date > overviewToDate) {
+        return false;
+      }
+
+      return true;
     });
+  }
 
-    // Filter by custom date range
-    if (overviewFromDate || overviewToDate) {
-        periodTransactions = periodTransactions.filter((transaction) => {
-            if (overviewFromDate && transaction.date < overviewFromDate) {
-                return false;
-            }
-
-            if (overviewToDate && transaction.date > overviewToDate) {
-                return false;
-            }
-
-            return true;
-        });
-    }
-
-    // Then filter by selected account
-    if (selectedAccount !== "all") {
-        periodTransactions = periodTransactions.filter(
-            (transaction) => transaction.account === selectedAccount,
-        );
-    }
-
-    return periodTransactions;
+  return periodTransactions;
 }
 
 function calculateTotals() {
-    let income = 0;
-    let expense = 0;
+  let income = 0;
+  let expense = 0;
 
-    const periodTransactions = getDashboardTransactions();
+  const periodTransactions = getDashboardTransactions();
 
-    periodTransactions.forEach((transaction) => {
-        if (transaction.type === "income") {
-            income += transaction.amount;
-        } else if (transaction.type === "expense") {
-            expense += Math.abs(transaction.amount);
-        }
-    });
+  periodTransactions.forEach((transaction) => {
+    if (transaction.type === "income") {
+      income += transaction.amount;
+    } else if (transaction.type === "expense") {
+      expense += Math.abs(transaction.amount);
+    }
+  });
 
-    return {
-        income,
-        expense,
-        balance: income - expense,
-        totalTransactions: periodTransactions.length,
-    };
+  return {
+    income,
+    expense,
+    balance: income - expense,
+    totalTransactions: periodTransactions.length,
+  };
 }
 
 function getExpensePeriodTransactions() {
-    const selectedDate = document.getElementById("datePickerInput").value;
+  const selectedDate = document.getElementById("datePickerInput").value;
 
-    const now = selectedDate ? new Date(selectedDate + "T00:00:00") : new Date();
+  const now = selectedDate ? new Date(selectedDate + "T00:00:00") : new Date();
 
-    return transactions.filter((transaction) => {
-        if (transaction.type !== "expense") {
-            return false;
-        }
+  return transactions.filter((transaction) => {
+    if (transaction.type !== "expense") {
+      return false;
+    }
 
-        const [year, month, day] = transaction.date.split("-").map(Number);
+    const [year, month, day] = transaction.date.split("-").map(Number);
 
-        const transactionDate = new Date(year, month - 1, day);
+    const transactionDate = new Date(year, month - 1, day);
 
-        // DAILY
-        if (expensePeriod === "daily") {
-            return (
-                transactionDate.getFullYear() === now.getFullYear() &&
-                transactionDate.getMonth() === now.getMonth() &&
-                transactionDate.getDate() === now.getDate()
-            );
-        }
+    // DAILY
+    if (expensePeriod === "daily") {
+      return (
+        transactionDate.getFullYear() === now.getFullYear() &&
+        transactionDate.getMonth() === now.getMonth() &&
+        transactionDate.getDate() === now.getDate()
+      );
+    }
 
-        // WEEKLY
-        if (expensePeriod === "weekly") {
-            const startOfWeek = new Date(now);
+    // WEEKLY
+    if (expensePeriod === "weekly") {
+      const startOfWeek = new Date(now);
 
-            const dayOfWeek = now.getDay();
+      const dayOfWeek = now.getDay();
 
-            startOfWeek.setDate(now.getDate() - dayOfWeek);
+      startOfWeek.setDate(now.getDate() - dayOfWeek);
 
-            startOfWeek.setHours(0, 0, 0, 0);
+      startOfWeek.setHours(0, 0, 0, 0);
 
-            const endOfWeek = new Date(startOfWeek);
+      const endOfWeek = new Date(startOfWeek);
 
-            endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
 
-            endOfWeek.setHours(23, 59, 59, 999);
+      endOfWeek.setHours(23, 59, 59, 999);
 
-            return transactionDate >= startOfWeek && transactionDate <= endOfWeek;
-        }
+      return transactionDate >= startOfWeek && transactionDate <= endOfWeek;
+    }
 
-        // MONTHLY
-        if (expensePeriod === "monthly") {
-            return (
-                transactionDate.getFullYear() === now.getFullYear() &&
-                transactionDate.getMonth() === now.getMonth()
-            );
-        }
+    // MONTHLY
+    if (expensePeriod === "monthly") {
+      return (
+        transactionDate.getFullYear() === now.getFullYear() &&
+        transactionDate.getMonth() === now.getMonth()
+      );
+    }
 
-        return false;
-    });
+    return false;
+  });
 }
 
 function updateExpensePeriod() {
-    const periodTransactions = getExpensePeriodTransactions();
+  const periodTransactions = getExpensePeriodTransactions();
 
-    let total = 0;
+  let total = 0;
 
-    periodTransactions.forEach((transaction) => {
-        total += Math.abs(transaction.amount);
-    });
+  periodTransactions.forEach((transaction) => {
+    total += Math.abs(transaction.amount);
+  });
 
-    document.getElementById("totalExpenses").textContent =
-        `₹${total.toLocaleString()}.00`;
+  document.getElementById("totalExpenses").textContent =
+    `₹${total.toLocaleString()}.00`;
 }
 
 function updateExpenseBreakdown() {
-    const container = document.getElementById("expenseCategories");
+  const container = document.getElementById("expenseCategories");
 
-    container.innerHTML = "";
+  container.innerHTML = "";
 
-    const categories = {};
+  const categories = {};
 
-    const periodTransactions = getExpensePeriodTransactions();
+  const periodTransactions = getExpensePeriodTransactions();
 
-    periodTransactions.forEach((transaction) => {
-        if (transaction.type === "expense") {
-            if (!categories[transaction.category]) {
-                categories[transaction.category] = 0;
-            }
+  periodTransactions.forEach((transaction) => {
+    if (transaction.type === "expense") {
+      if (!categories[transaction.category]) {
+        categories[transaction.category] = 0;
+      }
 
-            categories[transaction.category] += Math.abs(transaction.amount);
-        }
-    });
+      categories[transaction.category] += Math.abs(transaction.amount);
+    }
+  });
 
-    Object.entries(categories).forEach(([category, amount]) => {
-        container.innerHTML += `
+  Object.entries(categories).forEach(([category, amount]) => {
+    container.innerHTML += `
 
                 <li class="expense-category">
 
@@ -1561,154 +1721,182 @@ function updateExpenseBreakdown() {
                 </li>
 
             `;
-    });
+  });
 }
 
 // Update dashboard values
 function updateDashboard() {
-    calculateAccountBalances();
-    renderAccounts();
+  calculateAccountBalances();
+  renderAccounts();
 
-    const totals = calculateTotals();
+  const totals = calculateTotals();
 
-    const period = document.getElementById("dashboardPeriod").value;
+  const period = document.getElementById("dashboardPeriod").value;
 
-    const periodLabels = {
-        daily: "Daily",
+  const periodLabels = {
+    daily: "Daily",
 
-        weekly: "Weekly",
+    weekly: "Weekly",
 
-        monthly: "Monthly",
+    monthly: "Monthly",
 
-        yearly: "Yearly",
-    };
+    yearly: "Yearly",
+  };
 
-    const periodLabel = periodLabels[period];
+  const periodLabel = periodLabels[period];
 
-    document.getElementById("incomeCardTitle").textContent = `${periodLabel} Income`;
+  document.getElementById("incomeCardTitle").textContent =
+    `${periodLabel} Income`;
 
-    document.getElementById("expenseCardTitle").textContent = `${periodLabel} Expenses`;
+  document.getElementById("expenseCardTitle").textContent =
+    `${periodLabel} Expenses`;
 
-    document.getElementById("budgetAmount").textContent =
-        `₹${monthlyBudget.toLocaleString()}.00`;
+  document.getElementById("budgetAmount").textContent =
+    `₹${monthlyBudget.toLocaleString()}.00`;
 
-    const transactionElement = document.getElementById("totalTransactions");
+  const transactionElement = document.getElementById("totalTransactions");
 
-    if (transactionElement) {
-        transactionElement.textContent = totals.totalTransactions;
+  if (transactionElement) {
+    transactionElement.textContent = totals.totalTransactions;
+  }
+
+  document.querySelector(".income-amount").textContent =
+    `₹${totals.income.toLocaleString()}.00`;
+  document.querySelector(".expense-amount").textContent =
+    `₹${totals.expense.toLocaleString()}.00`;
+
+  const balanceElement = document.getElementById("currentBalance");
+
+  const totalBalance = calculateIncludedTotalBalance();
+
+  balanceElement.textContent = `${totalBalance < 0 ? "-₹" : "₹"}${Math.abs(totalBalance).toLocaleString("en-IN")}`;
+
+  balanceElement.style.color = totalBalance < 0 ? "#ef4444" : "#10b981";
+
+  const balanceStatus = document.getElementById("balanceStatus");
+
+  if (totalBalance >= 0) {
+    balanceStatus.innerHTML = `<i class="fas fa-wallet"></i> Included accounts balance`;
+
+    balanceStatus.style.color = "#10b981";
+  } else {
+    balanceStatus.innerHTML = `<i class="fas fa-exclamation-circle"></i> Included accounts are negative`;
+
+    balanceStatus.style.color = "#ef4444";
+  }
+
+  const incomeCount = transactions.filter((t) => t.type === "income").length;
+
+  const expenseCount = transactions.filter((t) => t.type === "expense").length;
+
+  document.getElementById("transactionSummary").textContent =
+    `${incomeCount} Income • ${expenseCount} Expense`;
+
+  // Update spending limit progress
+
+  // Update monthly spending limit progress
+
+const selectedDate = document.getElementById("datePickerInput").value;
+
+const budgetDate = selectedDate
+  ? new Date(selectedDate + "T00:00:00")
+  : new Date();
+
+const monthlyUsedAmount = transactions
+  .filter((transaction) => {
+    if (transaction.type !== "expense") {
+      return false;
     }
 
-    document.querySelector(".income-amount").textContent =
-        `₹${totals.income.toLocaleString()}.00`;
-    document.querySelector(".expense-amount").textContent =
-        `₹${totals.expense.toLocaleString()}.00`;
+    const [year, month] = transaction.date.split("-").map(Number);
 
-    const balanceElement = document.getElementById("currentBalance");
+    return (
+      year === budgetDate.getFullYear() &&
+      month - 1 === budgetDate.getMonth()
+    );
+  })
+  .reduce((total, transaction) => {
+    return total + Math.abs(Number(transaction.amount || 0));
+  }, 0);
 
-    const totalBalance = calculateIncludedTotalBalance();
+const remainingAmount = monthlyBudget - monthlyUsedAmount;
 
-    balanceElement.textContent = `${totalBalance < 0 ? "-₹" : "₹"}${Math.abs(totalBalance).toLocaleString("en-IN")}`;
+document.getElementById("spendingUsed").textContent =
+  `Used ₹${monthlyUsedAmount.toLocaleString()} of ₹${monthlyBudget.toLocaleString()}`;
 
-    balanceElement.style.color = totalBalance < 0 ? "#ef4444" : "#10b981";
+const percentage =
+  monthlyBudget > 0
+    ? (monthlyUsedAmount / monthlyBudget) * 100
+    : 0;
 
-    const balanceStatus = document.getElementById("balanceStatus");
+document.querySelector(".spending-limit").textContent =
+  `₹${remainingAmount.toLocaleString()}.00`;
 
-    if (totalBalance >= 0) {
-        balanceStatus.innerHTML = `<i class="fas fa-wallet"></i> Included accounts balance`;
+document.querySelector(".progress-fill").style.width =
+  `${Math.min(percentage, 100)}%`;
 
-        balanceStatus.style.color = "#10b981";
-    } else {
-        balanceStatus.innerHTML = `<i class="fas fa-exclamation-circle"></i> Included accounts are negative`;
+  updateExpensePeriod();
+  updateExpenseBreakdown();
 
-        balanceStatus.style.color = "#ef4444";
-    }
+  updateCharts();
 
-    const incomeCount = transactions.filter((t) => t.type === "income").length;
-
-    const expenseCount = transactions.filter((t) => t.type === "expense").length;
-
-    document.getElementById("transactionSummary").textContent =
-        `${incomeCount} Income • ${expenseCount} Expense`;
-
-    // Update spending limit progress
-
-    const usedAmount = totals.expense;
-
-    const remainingAmount = monthlyBudget - usedAmount;
-
-    document.getElementById("spendingUsed").textContent =
-        `Used ₹${totals.expense.toLocaleString()} of ₹${monthlyBudget.toLocaleString()}`;
-
-    const percentage = monthlyBudget > 0 ? (usedAmount / monthlyBudget) * 100 : 0;
-
-    document.querySelector(".spending-limit").textContent =
-        `₹${remainingAmount.toLocaleString()}.00`;
-
-    document.querySelector(".progress-fill").style.width =
-        `${Math.min(percentage, 100)}%`;
-
-    document.getElementById("totalExpenses").textContent =
-        `₹${totals.expense.toLocaleString()}.00`;
-
-    updateExpenseBreakdown();
-
-    updateCharts();
-
-    updateExpensePieChart();
+  updateExpensePieChart();
 }
 
 function updateGreeting() {
-    const hour = new Date().getHours();
+  const hour = new Date().getHours();
 
-    let greeting;
+  let greeting;
 
-    if (hour < 12) {
-        greeting = "Good Morning";
-    } else if (hour < 18) {
-        greeting = "Good Afternoon";
-    } else {
-        greeting = "Good Evening";
-    }
+  if (hour < 12) {
+    greeting = "Good Morning";
+  } else if (hour < 18) {
+    greeting = "Good Afternoon";
+  } else {
+    greeting = "Good Evening";
+  }
 
-    document.getElementById("greeting").textContent = `${greeting}, Sanskrati!`;
+  document.getElementById("greeting").textContent = `${greeting}, Sanskrati!`;
 }
 
 function updateCurrentDate() {
-    const dateInput = document.getElementById("datePickerInput");
+  const dateInput = document.getElementById("datePickerInput");
 
-    const date = dateInput.value ? new Date(dateInput.value + "T00:00:00") : new Date();
+  const date = dateInput.value
+    ? new Date(dateInput.value + "T00:00:00")
+    : new Date();
 
-    const formattedDate = date.toLocaleDateString("en-IN", {
-        day: "numeric",
+  const formattedDate = date.toLocaleDateString("en-IN", {
+    day: "numeric",
 
-        month: "long",
+    month: "long",
 
-        year: "numeric",
-    });
+    year: "numeric",
+  });
 
-    document.querySelector("#currentDate span").textContent = formattedDate;
+  document.querySelector("#currentDate span").textContent = formattedDate;
 }
 
 function handlePeriodChange(source) {
-    const headerPeriod = document.getElementById("headerDashboardPeriod");
+  const headerPeriod = document.getElementById("headerDashboardPeriod");
 
-    const overviewPeriod = document.getElementById("dashboardPeriod");
+  const overviewPeriod = document.getElementById("dashboardPeriod");
 
-    const selectedPeriod = source.value;
+  const selectedPeriod = source.value;
 
-    // Keep both dropdowns synchronized
-    if (headerPeriod && source !== headerPeriod) {
-        headerPeriod.value = selectedPeriod;
-    }
+  // Keep both dropdowns synchronized
+  if (headerPeriod && source !== headerPeriod) {
+    headerPeriod.value = selectedPeriod;
+  }
 
-    if (overviewPeriod && source !== overviewPeriod) {
-        overviewPeriod.value = selectedPeriod;
-    }
+  if (overviewPeriod && source !== overviewPeriod) {
+    overviewPeriod.value = selectedPeriod;
+  }
 
-    // Update everything
-    updateDashboard();
+  // Update everything
+  updateDashboard();
 
-    showNotification("Dashboard period updated!");
+  showNotification("Dashboard period updated!");
 }
 
 // ==========================================================
@@ -1716,279 +1904,279 @@ function handlePeriodChange(source) {
 // ==========================================================
 
 function updateCharts() {
-    const ctx = document.getElementById("overviewChart");
+  const ctx = document.getElementById("overviewChart");
 
-    if (!ctx) return;
+  if (!ctx) return;
 
-    const period = document.getElementById("dashboardPeriod").value;
+  const period = document.getElementById("dashboardPeriod").value;
 
-    const selectedDate = document.getElementById("datePickerInput").value;
+  const selectedDate = document.getElementById("datePickerInput").value;
 
-    const now = selectedDate ? new Date(selectedDate + "T00:00:00") : new Date();
+  const now = selectedDate ? new Date(selectedDate + "T00:00:00") : new Date();
 
-    // Destroy previous chart
-    if (overviewChart) {
-        overviewChart.destroy();
-    }
+  // Destroy previous chart
+  if (overviewChart) {
+    overviewChart.destroy();
+  }
 
-    let labels = [];
-    let incomeData = [];
-    let expenseData = [];
+  let labels = [];
+  let incomeData = [];
+  let expenseData = [];
 
-    // =====================================
-    // DAILY
-    // =====================================
+  // =====================================
+  // DAILY
+  // =====================================
 
-    if (period === "daily") {
-        const dailyTransactions = getDashboardTransactions();
+  if (period === "daily") {
+    const dailyTransactions = getDashboardTransactions();
 
-        let income = 0;
-        let expense = 0;
+    let income = 0;
+    let expense = 0;
 
-        dailyTransactions.forEach((transaction) => {
-            if (transaction.type === "income") {
-                income += transaction.amount;
-            }
+    dailyTransactions.forEach((transaction) => {
+      if (transaction.type === "income") {
+        income += transaction.amount;
+      }
 
-            if (transaction.type === "expense") {
-                expense += Math.abs(transaction.amount);
-            }
-        });
-
-        labels = ["Income", "Expense"];
-
-        incomeData = [income, 0];
-
-        expenseData = [0, expense];
-    }
-
-    // =====================================
-    // WEEKLY
-    // =====================================
-    else if (period === "weekly") {
-        labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-        incomeData = Array(7).fill(0);
-        expenseData = Array(7).fill(0);
-
-        const startOfWeek = new Date(now);
-
-        const dayOfWeek = now.getDay();
-
-        startOfWeek.setDate(now.getDate() - dayOfWeek);
-
-        startOfWeek.setHours(0, 0, 0, 0);
-
-        const endOfWeek = new Date(startOfWeek);
-
-        endOfWeek.setDate(startOfWeek.getDate() + 6);
-
-        endOfWeek.setHours(23, 59, 59, 999);
-
-        transactions.forEach((transaction) => {
-            const [year, month, day] = transaction.date.split("-").map(Number);
-
-            const transactionDate = new Date(year, month - 1, day);
-
-            if (transactionDate >= startOfWeek && transactionDate <= endOfWeek) {
-                const dayIndex = transactionDate.getDay();
-
-                if (transaction.type === "income") {
-                    incomeData[dayIndex] += transaction.amount;
-                }
-
-                if (transaction.type === "expense") {
-                    expenseData[dayIndex] += Math.abs(transaction.amount);
-                }
-            }
-        });
-    }
-
-    // =====================================
-    // MONTHLY
-    // =====================================
-    else if (period === "monthly") {
-        labels = ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"];
-
-        incomeData = Array(5).fill(0);
-        expenseData = Array(5).fill(0);
-
-        transactions.forEach((transaction) => {
-            const [year, month, day] = transaction.date.split("-").map(Number);
-
-            const transactionDate = new Date(year, month - 1, day);
-
-            if (
-                transactionDate.getFullYear() === now.getFullYear() &&
-                transactionDate.getMonth() === now.getMonth()
-            ) {
-                const weekIndex = Math.min(
-                    Math.floor((transactionDate.getDate() - 1) / 7),
-                    4,
-                );
-
-                if (transaction.type === "income") {
-                    incomeData[weekIndex] += transaction.amount;
-                }
-
-                if (transaction.type === "expense") {
-                    expenseData[weekIndex] += Math.abs(transaction.amount);
-                }
-            }
-        });
-    }
-
-    // =====================================
-    // YEARLY
-    // =====================================
-    else if (period === "yearly") {
-        labels = [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
-        ];
-
-        incomeData = Array(12).fill(0);
-        expenseData = Array(12).fill(0);
-
-        transactions.forEach((transaction) => {
-            const [year, month, day] = transaction.date.split("-").map(Number);
-
-            const transactionDate = new Date(year, month - 1, day);
-
-            if (transactionDate.getFullYear() === now.getFullYear()) {
-                const monthIndex = transactionDate.getMonth();
-
-                if (transaction.type === "income") {
-                    incomeData[monthIndex] += transaction.amount;
-                }
-
-                if (transaction.type === "expense") {
-                    expenseData[monthIndex] += Math.abs(transaction.amount);
-                }
-            }
-        });
-    }
-
-    // =====================================
-    // CREATE CHART
-    // =====================================
-
-    overviewChart = new Chart(ctx, {
-        type: "bar",
-
-        data: {
-            labels: labels,
-
-            datasets: [
-                {
-                    label: "Income",
-                    data: incomeData,
-                    backgroundColor: "#10b981",
-                    borderRadius: 8,
-                },
-
-                {
-                    label: "Expense",
-                    data: expenseData,
-                    backgroundColor: "#ef4444",
-                    borderRadius: 8,
-                },
-            ],
-        },
-
-        options: {
-            responsive: true,
-
-            maintainAspectRatio: false,
-
-            plugins: {
-                legend: {
-                    display: true,
-                    position: "top",
-                },
-            },
-
-            scales: {
-                y: {
-                    beginAtZero: true,
-                },
-            },
-        },
+      if (transaction.type === "expense") {
+        expense += Math.abs(transaction.amount);
+      }
     });
+
+    labels = ["Income", "Expense"];
+
+    incomeData = [income, 0];
+
+    expenseData = [0, expense];
+  }
+
+  // =====================================
+  // WEEKLY
+  // =====================================
+  else if (period === "weekly") {
+    labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    incomeData = Array(7).fill(0);
+    expenseData = Array(7).fill(0);
+
+    const startOfWeek = new Date(now);
+
+    const dayOfWeek = now.getDay();
+
+    startOfWeek.setDate(now.getDate() - dayOfWeek);
+
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    transactions.forEach((transaction) => {
+      const [year, month, day] = transaction.date.split("-").map(Number);
+
+      const transactionDate = new Date(year, month - 1, day);
+
+      if (transactionDate >= startOfWeek && transactionDate <= endOfWeek) {
+        const dayIndex = transactionDate.getDay();
+
+        if (transaction.type === "income") {
+          incomeData[dayIndex] += transaction.amount;
+        }
+
+        if (transaction.type === "expense") {
+          expenseData[dayIndex] += Math.abs(transaction.amount);
+        }
+      }
+    });
+  }
+
+  // =====================================
+  // MONTHLY
+  // =====================================
+  else if (period === "monthly") {
+    labels = ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"];
+
+    incomeData = Array(5).fill(0);
+    expenseData = Array(5).fill(0);
+
+    transactions.forEach((transaction) => {
+      const [year, month, day] = transaction.date.split("-").map(Number);
+
+      const transactionDate = new Date(year, month - 1, day);
+
+      if (
+        transactionDate.getFullYear() === now.getFullYear() &&
+        transactionDate.getMonth() === now.getMonth()
+      ) {
+        const weekIndex = Math.min(
+          Math.floor((transactionDate.getDate() - 1) / 7),
+          4,
+        );
+
+        if (transaction.type === "income") {
+          incomeData[weekIndex] += transaction.amount;
+        }
+
+        if (transaction.type === "expense") {
+          expenseData[weekIndex] += Math.abs(transaction.amount);
+        }
+      }
+    });
+  }
+
+  // =====================================
+  // YEARLY
+  // =====================================
+  else if (period === "yearly") {
+    labels = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    incomeData = Array(12).fill(0);
+    expenseData = Array(12).fill(0);
+
+    transactions.forEach((transaction) => {
+      const [year, month, day] = transaction.date.split("-").map(Number);
+
+      const transactionDate = new Date(year, month - 1, day);
+
+      if (transactionDate.getFullYear() === now.getFullYear()) {
+        const monthIndex = transactionDate.getMonth();
+
+        if (transaction.type === "income") {
+          incomeData[monthIndex] += transaction.amount;
+        }
+
+        if (transaction.type === "expense") {
+          expenseData[monthIndex] += Math.abs(transaction.amount);
+        }
+      }
+    });
+  }
+
+  // =====================================
+  // CREATE CHART
+  // =====================================
+
+  overviewChart = new Chart(ctx, {
+    type: "bar",
+
+    data: {
+      labels: labels,
+
+      datasets: [
+        {
+          label: "Income",
+          data: incomeData,
+          backgroundColor: "#10b981",
+          borderRadius: 8,
+        },
+
+        {
+          label: "Expense",
+          data: expenseData,
+          backgroundColor: "#ef4444",
+          borderRadius: 8,
+        },
+      ],
+    },
+
+    options: {
+      responsive: true,
+
+      maintainAspectRatio: false,
+
+      plugins: {
+        legend: {
+          display: true,
+          position: "top",
+        },
+      },
+
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
 }
 
 function updateExpensePieChart() {
-    const canvas = document.getElementById("expensePieChart");
+  const canvas = document.getElementById("expensePieChart");
 
-    if (!canvas) return;
+  if (!canvas) return;
 
-    const categories = {};
+  const categories = {};
 
-    const periodTransactions = getExpensePeriodTransactions();
+  const periodTransactions = getExpensePeriodTransactions();
 
-    periodTransactions.forEach((transaction) => {
-        if (transaction.type === "expense") {
-            if (!categories[transaction.category]) {
-                categories[transaction.category] = 0;
-            }
+  periodTransactions.forEach((transaction) => {
+    if (transaction.type === "expense") {
+      if (!categories[transaction.category]) {
+        categories[transaction.category] = 0;
+      }
 
-            categories[transaction.category] += Math.abs(transaction.amount);
-        }
-    });
-
-    const labels = Object.keys(categories);
-    const values = Object.values(categories);
-
-    if (expensePieChart) {
-        expensePieChart.destroy();
+      categories[transaction.category] += Math.abs(transaction.amount);
     }
+  });
 
-    expensePieChart = new Chart(canvas, {
-        type: "pie",
+  const labels = Object.keys(categories);
+  const values = Object.values(categories);
 
-        data: {
-            labels,
+  if (expensePieChart) {
+    expensePieChart.destroy();
+  }
 
-            datasets: [
-                {
-                    data: values,
+  expensePieChart = new Chart(canvas, {
+    type: "pie",
 
-                    backgroundColor: [
-                        "#10b981",
-                        "#3b82f6",
-                        "#f59e0b",
-                        "#ef4444",
-                        "#8b5cf6",
-                        "#06b6d4",
-                        "#ec4899",
-                        "#84cc16",
-                    ],
-                },
-            ],
+    data: {
+      labels,
+
+      datasets: [
+        {
+          data: values,
+
+          backgroundColor: [
+            "#10b981",
+            "#3b82f6",
+            "#f59e0b",
+            "#ef4444",
+            "#8b5cf6",
+            "#06b6d4",
+            "#ec4899",
+            "#84cc16",
+          ],
         },
+      ],
+    },
 
-        options: {
-            responsive: true,
+    options: {
+      responsive: true,
 
-            maintainAspectRatio: false,
+      maintainAspectRatio: false,
 
-            plugins: {
-                legend: {
-                    position: "bottom",
-                },
-            },
+      plugins: {
+        legend: {
+          position: "bottom",
         },
-    });
+      },
+    },
+  });
 }
 
 // ==========================================================
@@ -1996,55 +2184,66 @@ function updateExpensePieChart() {
 // ==========================================================
 
 function updateTransactionsTable() {
-    const tbody = document.querySelector(".transactions-table tbody");
-    tbody.innerHTML = "";
+  const tbody = document.querySelector(".transactions-table tbody");
+  tbody.innerHTML = "";
 
-    let filteredTransactions = [...transactions];
+  let filteredTransactions = [...transactions];
 
-    if (searchTerm) {
-        filteredTransactions = filteredTransactions.filter((transaction) => {
-            return (
-                transaction.category.toLowerCase().includes(searchTerm) ||
-                (transaction.description || "").toLowerCase().includes(searchTerm) ||
-                Math.abs(transaction.amount).toString().includes(searchTerm)
-            );
-        });
-    }
+  if (searchTerm) {
+    filteredTransactions = filteredTransactions.filter((transaction) => {
+      return (
+        transaction.category.toLowerCase().includes(searchTerm) ||
+        (transaction.description || "").toLowerCase().includes(searchTerm) ||
+        Math.abs(transaction.amount).toString().includes(searchTerm)
+      );
+    });
+  }
 
-    if (currentFilter !== "all") {
-        filteredTransactions = filteredTransactions.filter((transaction) => {
-            return transaction.type === currentFilter;
-        });
-    }
+  if (currentFilter !== "all") {
+    filteredTransactions = filteredTransactions.filter((transaction) => {
+      return transaction.type === currentFilter;
+    });
+  }
 
-    if (selectedAccount !== "all") {
-        filtered = filtered.filter(
-            (transaction) => transaction.account === selectedAccount,
-        );
-    }
+  if (selectedAccount !== "all") {
+    filteredTransactions = filteredTransactions.filter(
+      (transaction) => transaction.account === selectedAccount,
+    );
+  }
 
-    switch (currentSort) {
-        case "latest":
-            filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-            break;
+  if (currentCategory !== "all") {
+    filteredTransactions = filteredTransactions.filter(
+      (transaction) =>
+        transaction.category.toLowerCase() === currentCategory.toLowerCase(),
+    );
+  }
 
-        case "oldest":
-            filteredTransactions.sort((a, b) => new Date(a.date) - new Date(b.date));
-            break;
+  switch (currentSort) {
+    case "latest":
+      filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+      break;
 
-        case "highest":
-            filteredTransactions.sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount));
-            break;
+    case "oldest":
+      filteredTransactions.sort((a, b) => new Date(a.date) - new Date(b.date));
+      break;
 
-        case "lowest":
-            filteredTransactions.sort((a, b) => Math.abs(a.amount) - Math.abs(b.amount));
-            break;
-    }
+    case "highest":
+      filteredTransactions.sort(
+        (a, b) => Math.abs(b.amount) - Math.abs(a.amount),
+      );
+      break;
 
-    const recentTransactions = filteredTransactions.slice(0, 10);
+    case "lowest":
+      filteredTransactions.sort(
+        (a, b) => Math.abs(a.amount) - Math.abs(b.amount),
+      );
+      break;
+  }
 
-    if (recentTransactions.length === 0) {
-        tbody.innerHTML = `
+  const recentTransactions = filteredTransactions.slice(0, 10);
+
+  if (recentTransactions.length === 0) {
+    tbody.innerHTML = `
         <tr>
             <td colspan="6" style="text-align:center; padding:30px;">
                 No transactions found.
@@ -2052,33 +2251,36 @@ function updateTransactionsTable() {
         </tr>
     `;
 
-        return;
-    }
+    return;
+  }
 
-    recentTransactions.forEach((transaction) => {
-        const row = document.createElement("tr");
-        const formattedDate = new Date(transaction.date).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-        });
+  recentTransactions.forEach((transaction) => {
+    const row = document.createElement("tr");
+    const formattedDate = new Date(transaction.date).toLocaleDateString(
+      "en-US",
+      {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      },
+    );
 
-        const amountDisplay =
-            transaction.amount > 0
-                ? `+${transaction.amount.toLocaleString()}.00`
-                : `-${Math.abs(transaction.amount).toLocaleString()}.00`;
+    const amountDisplay =
+      transaction.amount > 0
+        ? `+${transaction.amount.toLocaleString()}.00`
+        : `-${Math.abs(transaction.amount).toLocaleString()}.00`;
 
-        row.innerHTML = `
+    row.innerHTML = `
                     <td>${formattedDate}</td>
-                    <td>${transaction.category}</td>
+                    <td>${escapeHTML(transaction.category)}</td>
                     <td>
-    ${getAccountName(transaction.account)}
+    ${escapeHTML(getAccountName(transaction.account))}
 </td>
                     <td style="color: ${
-                        transaction.amount > 0 ? "#10b981" : "#ef4444"
+                      transaction.amount > 0 ? "#10b981" : "#ef4444"
                     }">${amountDisplay}</td>
             <td>
-        ${transaction.description || "-"}
+        ${escapeHTML(transaction.description || "-")}
     </td>
                     <td><span class="status-success">${transaction.status}</span></td>
                     <td>
@@ -2094,8 +2296,8 @@ function updateTransactionsTable() {
 </td>
                 `;
 
-        tbody.appendChild(row);
-    });
+    tbody.appendChild(row);
+  });
 }
 
 // ==========================================================
@@ -2103,222 +2305,236 @@ function updateTransactionsTable() {
 // ==========================================================
 
 function openIncomeModal() {
-    document.getElementById("incomeModal").style.display = "block";
-    document.body.style.overflow = "hidden";
+  document.getElementById("incomeModal").style.display = "block";
+  document.body.style.overflow = "hidden";
 }
 
 function openExpenseModal() {
-    document.getElementById("expenseModal").style.display = "block";
-    document.body.style.overflow = "hidden";
+  document.getElementById("expenseModal").style.display = "block";
+  document.body.style.overflow = "hidden";
 }
 
 function openTransferModal() {
-    const modal = document.getElementById("transferModal");
+  const modal = document.getElementById("transferModal");
 
-    const dateInput = document.getElementById("transferDate");
+  const dateInput = document.getElementById("transferDate");
 
-    dateInput.value = today;
+  dateInput.value = today;
 
-    populateTransferAccounts();
+  populateTransferAccounts();
 
-    modal.style.display = "block";
+  modal.style.display = "block";
 
-    document.body.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
 }
 
 function openBudgetModal() {
-    const budgetInput = document.getElementById("budgetInput");
+  const budgetInput = document.getElementById("budgetInput");
 
-    budgetInput.value = monthlyBudget;
+  budgetInput.value = monthlyBudget;
 
-    document.getElementById("budgetModal").style.display = "block";
+  document.getElementById("budgetModal").style.display = "block";
 
-    document.body.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
 }
 
 function openAccountModal(accountId = null) {
-    const modal = document.getElementById("accountModal");
+  const modal = document.getElementById("accountModal");
 
-    const title = document.getElementById("accountModalTitle");
+  const title = document.getElementById("accountModalTitle");
 
-    const nameInput = document.getElementById("accountName");
+  const nameInput = document.getElementById("accountName");
 
-    const typeInput = document.getElementById("accountType");
+  const typeInput = document.getElementById("accountType");
 
-    const openingBalanceInput = document.getElementById("accountOpeningBalance");
+  const openingBalanceInput = document.getElementById("accountOpeningBalance");
 
-    const includeInTotalInput = document.getElementById("accountIncludeInTotal");
+  const includeInTotalInput = document.getElementById("accountIncludeInTotal");
 
-    editingAccountId = accountId;
+  editingAccountId = accountId;
 
-    if (accountId) {
-        const account = accounts.find((acc) => acc.id === accountId);
+  if (accountId) {
+    const account = accounts.find((acc) => acc.id === accountId);
 
-        if (!account) return;
+    if (!account) return;
 
-        title.textContent = "Edit Account";
+    title.textContent = "Edit Account";
 
-        nameInput.value = account.name;
+    nameInput.value = account.name;
 
-        typeInput.value = account.type;
+    typeInput.value = account.type;
 
-        openingBalanceInput.value = account.openingBalance || 0;
+    openingBalanceInput.value = account.openingBalance || 0;
 
-        includeInTotalInput.checked = account.includeInTotal !== false;
-    } else {
-        title.textContent = "Add Account";
+    includeInTotalInput.checked = account.includeInTotal !== false;
+  } else {
+    title.textContent = "Add Account";
 
-        nameInput.value = "";
+    nameInput.value = "";
 
-        typeInput.value = "";
+    typeInput.value = "";
 
-        openingBalanceInput.value = 0;
+    openingBalanceInput.value = 0;
 
-        includeInTotalInput.checked = true;
-    }
+    includeInTotalInput.checked = true;
+  }
 
-    modal.style.display = "block";
+  modal.style.display = "block";
 
-    document.body.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
 }
 
 // Moved from an inline <script> block in index.html so all modal logic
 // lives in one place. Behavior is unchanged.
 function openCategoryModal() {
-    const modal = document.getElementById("categoryModal");
+  const modal = document.getElementById("categoryModal");
 
-    if (!modal) return;
+  if (!modal) return;
 
-    document.getElementById("categoryName").value = "";
-    document.getElementById("categoryType").value = "expense";
-    updateCategoryBudgetVisibility();
-    document.getElementById("categoryBudget").value = 0;
+  document.getElementById("categoryName").value = "";
+  document.getElementById("categoryType").value = "expense";
+  updateCategoryBudgetVisibility();
+  document.getElementById("categoryBudget").value = 0;
 
-    modal.style.display = "block";
-    document.body.style.overflow = "hidden";
+  modal.style.display = "block";
+  document.body.style.overflow = "hidden";
 }
 
 function updateCategoryBudgetVisibility() {
-    const type = document.getElementById("categoryType").value;
+  const type = document.getElementById("categoryType").value;
 
-    const budgetGroup = document.getElementById("categoryBudgetGroup");
+  const budgetGroup = document.getElementById("categoryBudgetGroup");
 
-    if (!budgetGroup) return;
+  if (!budgetGroup) return;
 
-    if (type === "expense") {
-        budgetGroup.style.display = "block";
-    } else {
-        budgetGroup.style.display = "none";
+  if (type === "expense") {
+    budgetGroup.style.display = "block";
+  } else {
+    budgetGroup.style.display = "none";
 
-        document.getElementById("categoryBudget").value = 0;
-    }
+    document.getElementById("categoryBudget").value = 0;
+  }
 }
 
 function closeModal(modalId) {
-    document.getElementById(modalId).style.display = "none";
+  document.getElementById(modalId).style.display = "none";
 
-    document.body.style.overflow = "auto";
+  document.body.style.overflow = "auto";
 
-    // Reset income form
-    if (modalId === "incomeModal") {
-        document.getElementById("incomeForm").reset();
+  // Reset income form
+  if (modalId === "incomeModal") {
+    document.getElementById("incomeForm").reset();
 
-        document.getElementById("incomeDate").value = today;
-    }
+    document.getElementById("incomeDate").value = today;
+  }
 
-    // Reset expense form
-    else if (modalId === "expenseModal") {
-        document.getElementById("expenseForm").reset();
+  // Reset expense form
+  else if (modalId === "expenseModal") {
+    document.getElementById("expenseForm").reset();
 
-        document.getElementById("expenseDate").value = today;
-    }
+    document.getElementById("expenseDate").value = today;
+  }
+  
+if (modalId === "incomeModal" || modalId === "expenseModal") {
+    editingTransactionId = null;
+}
 
-    // Reset budget form
-    else if (modalId === "budgetModal") {
-        document.getElementById("budgetForm").reset();
-    }
+  // Reset budget form
+  else if (modalId === "budgetModal") {
+    document.getElementById("budgetForm").reset();
+  }
 }
 
 // Close modal when clicking outside
 window.onclick = function (event) {
-    const incomeModal = document.getElementById("incomeModal");
+  const incomeModal = document.getElementById("incomeModal");
 
-    const expenseModal = document.getElementById("expenseModal");
+  const expenseModal = document.getElementById("expenseModal");
 
-    const budgetModal = document.getElementById("budgetModal");
+  const budgetModal = document.getElementById("budgetModal");
 
-    const transferModal = document.getElementById("transferModal");
+  const transferModal = document.getElementById("transferModal");
 
-    if (event.target === transferModal) {
-        closeModal("transferModal");
-    }
+  if (event.target === transferModal) {
+    closeModal("transferModal");
+  }
 
-    if (event.target === incomeModal) {
-        closeModal("incomeModal");
-    }
+  if (event.target === incomeModal) {
+    closeModal("incomeModal");
+  }
 
-    if (event.target === expenseModal) {
-        closeModal("expenseModal");
-    }
+  if (event.target === expenseModal) {
+    closeModal("expenseModal");
+  }
 
-    if (event.target === budgetModal) {
-        closeModal("budgetModal");
-    }
+  if (event.target === budgetModal) {
+    closeModal("budgetModal");
+  }
 };
 
 // ==========================================================
 // 12. EVENT LISTENERS
 // ==========================================================
 
-document.getElementById("addTransferBtn").addEventListener("click", openTransferModal);
+document
+  .getElementById("addTransferBtn")
+  .addEventListener("click", openTransferModal);
 
 document.getElementById("editBudgetBtn").addEventListener("click", function () {
-    openBudgetModal();
+  openBudgetModal();
 });
 
 document.getElementById("categoryType").addEventListener("change", function () {
-    updateCategoryBudgetVisibility();
+  updateCategoryBudgetVisibility();
 });
 
 document.getElementById("searchInput").addEventListener("input", function () {
-    searchTerm = this.value.toLowerCase();
+  searchTerm = this.value.toLowerCase();
 
-    updateTransactionsTable();
+  updateTransactionsTable();
 });
 
 document.getElementById("typeFilter").addEventListener("change", function () {
-    currentFilter = this.value;
+  currentFilter = this.value;
 
-    updateTransactionsTable();
+  updateTransactionsTable();
 });
 
-document.getElementById("sortTransactions").addEventListener("change", function () {
+document
+  .getElementById("sortTransactions")
+  .addEventListener("change", function () {
     currentSort = this.value;
 
     updateTransactionsTable();
-});
+  });
 
 document.getElementById("clearFilters").addEventListener("click", function () {
-    searchTerm = "";
-    currentFilter = "all";
-    currentSort = "latest";
+searchTerm = "";
+currentFilter = "all";
+currentCategory = "all";
+currentSort = "latest";
+selectedAccount = "all";
 
-    document.getElementById("searchInput").value = "";
-    document.getElementById("typeFilter").value = "all";
-    document.getElementById("sortTransactions").value = "latest";
+  document.getElementById("searchInput").value = "";
+  document.getElementById("typeFilter").value = "all";
+  document.getElementById("categoryFilter").value = "all";
+  document.getElementById("sortTransactions").value = "latest";
+  document.getElementById("accountFilter").value = "all";
 
-    updateTransactionsTable();
+  updateTransactionsTable();
 
-    showNotification("Filters cleared!");
+  showNotification("Filters cleared!");
 });
 
 document.getElementById("currentDate").addEventListener("click", function () {
-    const dateInput = document.getElementById("datePickerInput");
+  const dateInput = document.getElementById("datePickerInput");
 
-    dateInput.showPicker();
+  dateInput.showPicker();
 });
 
-document.getElementById("datePickerInput").addEventListener("change", function () {
+document
+  .getElementById("datePickerInput")
+  .addEventListener("change", function () {
     updateCurrentDate();
 
     updateDashboard();
@@ -2326,33 +2542,156 @@ document.getElementById("datePickerInput").addEventListener("change", function (
     renderCategories();
 
     showNotification("Dashboard date updated!");
-});
+  });
 
-document.getElementById("exportBtn").addEventListener("click", exportTransactions);
+document
+  .getElementById("exportBtn")
+  .addEventListener("click", exportTransactions);
+document.getElementById("backupDataBtn").addEventListener("click", backupData);
 
-document.getElementById("accountFilter").addEventListener("change", function () {
+document
+  .getElementById("restoreDataInput")
+  .addEventListener("change", function (event) {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      try {
+        const backup = JSON.parse(e.target.result);
+
+        if (
+          !backup ||
+          backup.version !== 1 ||
+          !Array.isArray(backup.accounts) ||
+          !Array.isArray(backup.categories) ||
+          !Array.isArray(backup.transactions)
+        ) {
+          showNotification("Invalid expense tracker backup file.", "error");
+
+          return;
+        }
+
+        const validAccounts = backup.accounts.every(
+          (account) =>
+            account &&
+            typeof account.id !== "undefined" &&
+            typeof account.name === "string",
+        );
+
+        const validCategories = backup.categories.every(
+          (category) =>
+            category &&
+            typeof category.id !== "undefined" &&
+            typeof category.name === "string" &&
+            (category.type === "income" || category.type === "expense"),
+        );
+
+        const validTransactions = backup.transactions.every(
+          (transaction) =>
+            transaction &&
+            typeof transaction.id !== "undefined" &&
+            typeof transaction.date === "string" &&
+            typeof transaction.amount === "number" &&
+            typeof transaction.type === "string",
+        );
+
+        if (!validAccounts || !validCategories || !validTransactions) {
+          showNotification(
+            "Backup contains invalid data and cannot be restored.",
+            "error",
+          );
+
+          return;
+        }
+
+        const confirmed = confirm(
+          "Restoring this backup will replace your current data. Continue?",
+        );
+
+        if (!confirmed) return;
+
+        accounts = backup.accounts;
+        categories = backup.categories;
+        transactions = backup.transactions;
+
+        if (backup.monthlyBudget !== undefined) {
+          monthlyBudget = Number(backup.monthlyBudget);
+        }
+
+        saveData();
+
+        calculateAccountBalances();
+
+        populateAccountDropdowns();
+        populateAccountFilter();
+        populateCategoryDropdowns();
+        populateCategoryFilter();
+
+        renderAccounts();
+        renderCategories();
+
+        updateDashboard();
+        updateTransactionsTable();
+
+        showNotification("Backup restored successfully!");
+      } catch (error) {
+        console.error("Backup restore error:", error);
+
+        showNotification("Could not restore the backup file.", "error");
+      }
+    };
+
+    reader.readAsText(file);
+  });
+
+document
+  .getElementById("restoreDataBtn")
+  .addEventListener("click", restoreData);
+
+document
+  .getElementById("accountFilter")
+  .addEventListener("change", function () {
     selectedAccount = this.value;
 
     updateTransactionsTable();
 
     updateDashboard();
-});
+  });
 
-document.getElementById("overviewFilterBtn").addEventListener("click", function () {
+document
+  .getElementById("categoryFilter")
+  .addEventListener("change", function () {
+    currentCategory = this.value;
+
+    updateTransactionsTable();
+  });
+
+document
+  .getElementById("overviewFilterBtn")
+  .addEventListener("click", function () {
     document.getElementById("overviewFilterModal").style.display = "block";
 
     document.body.style.overflow = "hidden";
-});
+  });
 
-document.getElementById("applyOverviewFilter").addEventListener("click", function () {
+document
+  .getElementById("applyOverviewFilter")
+  .addEventListener("click", function () {
     overviewFromDate = document.getElementById("overviewFromDate").value;
 
     overviewToDate = document.getElementById("overviewToDate").value;
 
-    if (overviewFromDate && overviewToDate && overviewFromDate > overviewToDate) {
-        showNotification("From date cannot be after To date.", "error");
+    if (
+      overviewFromDate &&
+      overviewToDate &&
+      overviewFromDate > overviewToDate
+    ) {
+      showNotification("From date cannot be after To date.", "error");
 
-        return;
+      return;
     }
 
     closeModal("overviewFilterModal");
@@ -2360,9 +2699,11 @@ document.getElementById("applyOverviewFilter").addEventListener("click", functio
     updateDashboard();
 
     showNotification("Overview filter applied!");
-});
+  });
 
-document.getElementById("clearOverviewFilter").addEventListener("click", function () {
+document
+  .getElementById("clearOverviewFilter")
+  .addEventListener("click", function () {
     overviewFromDate = "";
     overviewToDate = "";
 
@@ -2375,71 +2716,75 @@ document.getElementById("clearOverviewFilter").addEventListener("click", functio
     updateDashboard();
 
     showNotification("Overview filter cleared!");
-});
+  });
 
 document.querySelectorAll(".period-tab").forEach((tab) => {
-    tab.addEventListener("click", function () {
-        document.querySelectorAll(".period-tab").forEach((item) => {
-            item.classList.remove("active");
-        });
-
-        this.classList.add("active");
-
-        expensePeriod = this.dataset.expensePeriod;
-
-        updateExpensePeriod();
+  tab.addEventListener("click", function () {
+    document.querySelectorAll(".period-tab").forEach((item) => {
+      item.classList.remove("active");
     });
+
+    this.classList.add("active");
+
+    expensePeriod = this.dataset.expensePeriod;
+
+    updateExpensePeriod();
+  });
 });
 
 document.querySelectorAll(".card-menu").forEach((button) => {
-    button.addEventListener("click", function () {
-        showNotification("More options coming soon!");
-    });
+  button.addEventListener("click", function () {
+    showNotification("More options coming soon!");
+  });
 });
 
 // Keyboard shortcuts
 document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") {
-        closeModal("incomeModal");
-        closeModal("expenseModal");
-        closeModal("budgetModal");
-        closeModal("transferModal");
-    }
+  if (e.key === "Escape") {
+    closeModal("incomeModal");
+    closeModal("expenseModal");
+    closeModal("budgetModal");
+    closeModal("transferModal");
+  }
 
-    if (e.ctrlKey && e.key === "i") {
-        e.preventDefault();
-        openIncomeModal();
-    }
+  if (e.ctrlKey && e.key === "i") {
+    e.preventDefault();
+    openIncomeModal();
+  }
 
-    if (e.ctrlKey && e.key === "e") {
-        e.preventDefault();
-        openExpenseModal();
-    }
+  if (e.ctrlKey && e.key === "e") {
+    e.preventDefault();
+    openExpenseModal();
+  }
 });
 
 // Add hover effects to cards
 document.querySelectorAll(".card").forEach((card) => {
-    card.addEventListener("mouseenter", function () {
-        this.style.transform = "translateY(-2px)";
-        this.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
-        this.style.transition = "all 0.2s ease";
-    });
+  card.addEventListener("mouseenter", function () {
+    this.style.transform = "translateY(-2px)";
+    this.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+    this.style.transition = "all 0.2s ease";
+  });
 
-    card.addEventListener("mouseleave", function () {
-        this.style.transform = "translateY(0)";
-        this.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
-    });
+  card.addEventListener("mouseleave", function () {
+    this.style.transform = "translateY(0)";
+    this.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
+  });
 });
 
 // Header dropdown
-document.getElementById("headerDashboardPeriod").addEventListener("change", function () {
+document
+  .getElementById("headerDashboardPeriod")
+  .addEventListener("change", function () {
     handlePeriodChange(this);
-});
+  });
 
 // Overview dropdown
-document.getElementById("dashboardPeriod").addEventListener("change", function () {
+document
+  .getElementById("dashboardPeriod")
+  .addEventListener("change", function () {
     handlePeriodChange(this);
-});
+  });
 
 // ==========================================================
 // 13. INITIALIZATION
@@ -2447,20 +2792,27 @@ document.getElementById("dashboardPeriod").addEventListener("change", function (
 
 // Initialize the dashboard on load
 document.addEventListener("DOMContentLoaded", function () {
-    loadData();
-    populateCategoryDropdowns();
-    renderCategories();
+  loadData();
+  const headerPeriod = document.getElementById("headerDashboardPeriod");
+    const overviewPeriod = document.getElementById("dashboardPeriod");
 
-    populateAccountDropdowns();
-    populateAccountFilter();
+    if (headerPeriod && overviewPeriod) {
+        overviewPeriod.value = headerPeriod.value;
+    }
+  populateCategoryDropdowns();
+  renderCategories();
 
-    calculateAccountBalances();
+  populateAccountDropdowns();
+  populateAccountFilter();
+  populateCategoryFilter();
 
-    renderAccounts();
+  calculateAccountBalances();
 
-    updateDashboard();
-    updateTransactionsTable();
-    updateGreeting();
-    updateCurrentDate();
-    updateExpensePeriod();
+  renderAccounts();
+
+  updateDashboard();
+  updateTransactionsTable();
+  updateGreeting();
+  updateCurrentDate();
+  updateExpensePeriod();
 });

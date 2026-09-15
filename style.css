@@ -1062,28 +1062,19 @@ body {
 }
 
 .category-management-card-budget {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 14px;
-  padding-top: 10px;
-  border-top: 1px solid #f1f5f9;
-  font-size: 0.85rem;
-  color: #64748b;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 0.85rem;
+    color: #64748b;
 }
 
 .category-management-card-budget strong {
   color: #1e293b;
   font-size: 0.95rem;
-}
-
-.category-management-card-budget {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid #e5e7eb;
 }
 
 .category-management-card-budget > div {
